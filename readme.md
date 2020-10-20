@@ -68,7 +68,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
 | orderRows | array | x| De artiklar som ska beställas |
-| orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
+| orderRows.orderRowId | string | x | Radens id, används för att koppla ihop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
@@ -145,7 +145,7 @@ En beställning med två produkter med 18st licenser av varje där tilldelning s
 
 Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
 
-# Tilldelning
+# 2. Tilldelning
 
 ## Anrop från licensportal
 
@@ -255,7 +255,7 @@ Enkel tilldelning utan grupptillhörighet. Tilldelning lyckas enligt svaret (Til
 
 Tilldelning med hänvisning till en grupp. Tilldelningen misslyckades (Tilldelning 2 Svar.js). 
 
-# Statistik
+# 3. Statistik
 
 Metod 1 levererar information om tilldelning och användning ner på individnivå och är därför att föredra. Metod 2 aggregerar data och kan användas som ett alternativ under tiden tills tjänsteleverantörer får klart API för metod 1.
 
