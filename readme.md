@@ -45,7 +45,9 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		orderRowId: "",
 		articleNumber: "",
 		quantity: 1,
-		fromDate:""
+		fromDate:"",
+		EndCustomerOrderNumber:"",
+		articleCampaignPrice:""
 	}]
 }
 ```
@@ -72,6 +74,8 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
+| orderRows.endCustomerOrderNumber | string |  | Slutkunds ordernummer. Kan användas för att skicka med slutkundens ordernummer/referens. Användbart om slutkunden använder sig av en inköpsportal |
+| orderRows.articleCampaignPrice | number |  | Om priset avviker från listpris. Kan användas vid offertköp eller kampanjer. |
 
 ### Värdelistor till orderanropet
 | identitySource | Förklaring |
@@ -154,6 +158,8 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 	clientId:"",
 	serviceProviderId: "",
 	replyToUrl:"",
+	
+	action: "",
 
 	account: {
         identitySource: "",
@@ -185,6 +191,7 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 | clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
+| action | string | x | Assign (tilldela) eller Unassign (fråndela) |
 | account | object | x | Beställande organisationen, oftast en skolenhet |
 | account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
 | account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
