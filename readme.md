@@ -176,6 +176,7 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 		},
 
 		licenseKey: "",
+		orderNumber: "",
 		assignedByGroups: [{		
 			identitySource: "",
 			id: "",
