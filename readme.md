@@ -46,6 +46,8 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		articleNumber: "",
 		quantity: 1,
 		fromDate:"",
+		discountPercent:"",
+		discountCode:"",
 		EndCustomerOrderNumber:"",
 		articleCampaignPrice:""
 	}]
