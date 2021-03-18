@@ -76,6 +76,8 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
+| orderRows.discountPercent | number |  |Siffra med hur många procent rabatt som ska gälla på denna orderrad om den avviker från det normala. Bör följas av en kod nedan|
+| orderRows.discountCode | string |  | Kod som hör ihop med discountPercent. Kan användas för kampanjer eller speciella erbjudanden mot en specifik kund |
 | orderRows.endCustomerOrderNumber | string |  | Slutkunds ordernummer. Kan användas för att skicka med slutkundens ordernummer/referens. Användbart om slutkunden använder sig av en inköpsportal |
 | orderRows.articleCampaignPrice | number |  | Om priset avviker från listpris. Kan användas vid offertköp eller kampanjer. |
 
