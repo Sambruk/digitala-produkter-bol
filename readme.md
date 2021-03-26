@@ -23,6 +23,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 {
 	clientId: "",
 	serviceProviderId : "",
+	siteId: "",
 	clientOrderNumber : "",
 	replyToUrl: "",
 	notifyReference: true,
@@ -58,6 +59,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | --- | --- | --- | --- |
 | clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
+| siteId | number |  | Id på avdelning/sida hos tjänsteleverantör |
 | clientOrderNumber | string | x | Klientens ordernummer |
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
 | notifyReference | bool | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
