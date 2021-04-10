@@ -27,6 +27,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 	clientOrderNumber : "",
 	replyToUrl: "",
 	notifyReference: true,
+	deliveryLocation: "";
 	isPrivatePurchase: true,
 
 	reference: {
@@ -62,7 +63,8 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | siteId | number |  | Id på avdelning/sida hos tjänsteleverantör |
 | clientOrderNumber | string | x | Klientens ordernummer |
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
-| notifyReference | bool | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
+| notifyReference | bool |  | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
+| deliveryLocation | string |  | Plattform dit licens ska levereras | 
 | isPrivatePurchase | bool | | True ifall det är en privatperson som beställer |
 | reference | object | | Namn och epost på den som har beställt licensen. Ifall notifyReference är satt till true så är det den personen som är mottagaren av licensen |
 | reference.name | string | | Namnet på beställaren |
