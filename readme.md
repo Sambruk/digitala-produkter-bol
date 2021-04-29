@@ -172,7 +172,8 @@ Anropet görs när kund önskar returnera ett antal oanvända licenser, kopplade
 	"orderRows": [{
 		"orderRowId": "",
 		"articleNumber": "",
-		"returnQuantity": 1,
+		"quantity": 1,
+		"licenseKeys": [""]
 	}]
 }
 ```
@@ -193,7 +194,8 @@ Anropet görs när kund önskar returnera ett antal oanvända licenser, kopplade
 | orderRows | array | x| De artiklar som ska beställas |
 | orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
-| orderRows.returnQuantity | number | x | Hur många licenser som ska returneras |
+| orderRows.quantity | number | x | Antal licenser som kund önskar returnera |
+| orderRows.licenseKeys | array | x | De specifika licenser som kund önskar returnera |
 
 ### Värdelistor till returanropet
 | identitySource | Förklaring |
@@ -221,6 +223,7 @@ Tjänsteleverantören svarar klienten direkt i anropet, eller senare till `reply
 		"vatPercent": "",
 		"status": "",
 		"errorMessage": "",
+		"licenseKeys": [""]
 	}],
 }
 
@@ -239,6 +242,7 @@ Tjänsteleverantören svarar klienten direkt i anropet, eller senare till `reply
 | orderRows.vatPercent | number | | Hur mycket moms som betalas för artikeln |
 | orderRows.status | string | x | Status för retur. Förklaras längre ner |
 | orderRows.errorMessage | string | | Valfritt, vid nekad retur kan felmeddelandet användas för att förklara anledningen |
+| orderRows.licenseKeys | array | x | De specifika licenser som har returnerats |
 
 \* = licensnycklar är obligatoriska om statusen är delivered och klienten anropade med notifyUser = false.
 ### Värdelistor till ordersvaret
