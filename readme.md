@@ -147,7 +147,7 @@ En beställning med två produkter med 18st licenser av varje där tilldelning s
 
 Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
 
-# 2. Avbeställning/Retur
+# 2. Retur
 
 ## Anrop från licensportal
 
@@ -195,7 +195,7 @@ Anropet görs när kund önskar returnera ett antal oanvända licenser, kopplade
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.returnQuantity | number | x | Hur många licenser som ska returneras |
 
-### Värdelistor till avbeställningsanropet
+### Värdelistor till returanropet
 | identitySource | Förklaring |
 | --- | --- |
 | client | Licensportalens egna id |
