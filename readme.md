@@ -9,9 +9,11 @@ Den första versionen består av tre API:er: Beställning, Tilldelning och Stati
 
 **1. Order**: Används av webbshopen för att anropa läromedelsproducenten och berätta hur många av en viss licens som köpts in av en viss kund.
 
-**2 . Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+**2. Avbeställning/Retur**: Anrop från webbshopen till läromedelsproducenten för att be om att avbeställa ett antal licenser på en eller flera artiklar.
 
-**3. Statistik**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
+**3 . Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+
+**4. Statistik**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
 
 Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 
@@ -145,7 +147,108 @@ En beställning med två produkter med 18st licenser av varje där tilldelning s
 
 Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
 
-# Tilldelning
+# 2. Avbeställning/Retur
+
+## Anrop från licensportal
+
+Anropet görs när kund önskar returnera ett antal oanvända licenser, kopplade till en viss order. Läromedelsproducentens köpvillkor styr huruvida det går att returnera licenser eller inte.
+
+```json
+{
+	"clientId": "",
+	"serviceProviderId": "",
+	"clientOrderNumber": "",
+	"replyToUrl": "",
+	"notifyReference": true,
+
+	"account": {
+		"id": "",
+		"identitySource": "",
+		"schoolUnitCode": 1234567,
+		"organizationNumber": "",
+		"name": "",
+	},
+
+	"orderRows": [{
+		"orderRowId": "",
+		"articleNumber": "",
+		"returnQuantity": 1,
+	}]
+}
+```
+
+| Egenskap | Typ | Obligatorisk | Förklaring |
+| --- | --- | --- | --- |
+| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
+| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
+| clientOrderNumber | string | x | Klientens ordernummer |
+| replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
+| notifyReference | bool | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
+| account | object | x | Beställande organisationen, oftast en skolenhet |
+| account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
+| account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
+| account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
+| account.organizationNumber | string | x | Organisationsnummer på beställaren |
+| account.name | string | x | Namnet på skolenheten |
+| orderRows | array | x| De artiklar som ska beställas |
+| orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
+| orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
+| orderRows.returnQuantity | number | x | Hur många licenser som ska returneras |
+
+### Värdelistor till avbeställningsanropet
+| identitySource | Förklaring |
+| --- | --- |
+| client | Licensportalens egna id |
+| EGIL | EGIL-klientens id = kommunens egna id? |
+| Google | Google-id |
+| Microsoft | Microsoft-id |
+
+## Svar från läromedelsproducent
+
+Tjänsteleverantören svarar klienten direkt i anropet, eller senare till `replyToUrl` som klient angett.
+
+```json
+{
+	"clientId": "",
+	"serviceProviderId": "",
+	"clientOrderNumber": "",
+
+	"orderRows":[{
+		"orderRowId": "",
+		"articleNumber": "",
+		"quantity": 1,
+		"unitRefundAmount": "",
+		"vatPercent": "",
+		"status": "",
+		"errorMessage": "",
+	}],
+}
+
+```
+
+| Egenskap | Typ | Obligatorisk | Förklaring |
+| --- | --- | --- | --- |
+| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
+| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
+| clientOrderNumber | string | x | Klientens ordernummer. Ska vara samma skickades med i anropet |
+| orderRows | array | x | De artiklar som har beställts |
+| orderRows.orderRowId | string | x | Radens id, ska vara samma som klienten skickade med i anropet |
+| orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
+| orderRows.quantity | number | x | Hur många licenser som returnerats. För verifiering bör vara samma som i anropet |
+| orderRows.unitRefundAmount | number | | Styckpriset (inkl. eventuella rabatter) som återbetalas. Valfritt att skicka med |
+| orderRows.vatPercent | number | | Hur mycket moms som betalas för artikeln |
+| orderRows.status | string | x | Status för retur. Förklaras längre ner |
+| orderRows.errorMessage | string | | Valfritt, vid nekad retur kan felmeddelandet användas för att förklara anledningen |
+
+\* = licensnycklar är obligatoriska om statusen är delivered och klienten anropade med notifyUser = false.
+### Värdelistor till ordersvaret
+| Status | Förklaring |
+| --- | --- |
+| beingProcessed | Retur hanteras av tjänsteleverantören. Om tjänsteleverantören svarar med den här statusen förväntar sig klienten att få ett nytt anrop till replyToUrl vid ett senare tillfälle. |
+| processed | Tjänsteleverantören godkänner retur. |
+| declined | Tjänsteleverantören nekar retur och kan skicka med mer detaljerad information i `errorMessage`. |
+
+# 3. Tilldelning
 
 ## Anrop från licensportal
 
@@ -255,7 +358,7 @@ Enkel tilldelning utan grupptillhörighet. Tilldelning lyckas enligt svaret (Til
 
 Tilldelning med hänvisning till en grupp. Tilldelningen misslyckades (Tilldelning 2 Svar.js). 
 
-# Statistik
+# 4. Statistik
 
 Metod 1 levererar information om tilldelning och användning ner på individnivå och är därför att föredra. Metod 2 aggregerar data och kan användas som ett alternativ under tiden tills tjänsteleverantörer får klart API för metod 1.
 
