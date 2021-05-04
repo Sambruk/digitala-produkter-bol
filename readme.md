@@ -3,6 +3,8 @@
 ##  Bakgrund  
 Gruppen Beställning och Leverans har haft uppdraget att ta fram en serie av API:er som gör det möjligt för webbshopar och läromedelsproducenter att prata med varandra, samt förenkla hanteringen av licenser efter att köpet har genomförts.
 
+En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
+
 Den första versionen består av tre API:er: Beställning, Tilldelning och Statistik.
 
 * **Beställning**
@@ -11,9 +13,15 @@ Den första versionen består av tre API:er: Beställning, Tilldelning och Stati
 
   * **Retur**: Anrop från webbshopen till läromedelsproducenten för att be om att avbeställa ett antal licenser på en eller flera artiklar.
 
-* **Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+* **Tilldelning**
 
-* **Statistik**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
+  * **Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+
+* **Statistik**
+
+  * **Metod 1**: Levererar information om tilldelning och användning ner på individnivå och är därför att föredra.
+
+  * **Metod 2**: Aggregerar data och kan användas som ett alternativ under tiden tills tjänsteleverantörer får klart API för metod 1.
 
 Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 
@@ -147,7 +155,7 @@ En beställning med två produkter med 18st licenser av varje där tilldelning s
 
 Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
 
-# 2. Retur
+# Retur
 
 ## Anrop från licensportal
 
@@ -256,7 +264,7 @@ Tjänsteleverantören svarar klienten direkt i anropet, eller senare till `reply
 | processed | Tjänsteleverantören godkänner retur. |
 | declined | Tjänsteleverantören nekar retur och kan skicka med mer detaljerad information i `errorMessage`. |
 
-# 3. Tilldelning
+# Tilldelning
 
 ## Anrop från licensportal
 
@@ -366,7 +374,7 @@ Enkel tilldelning utan grupptillhörighet. Tilldelning lyckas enligt svaret (Til
 
 Tilldelning med hänvisning till en grupp. Tilldelningen misslyckades (Tilldelning 2 Svar.js). 
 
-# 4. Statistik
+# Statistik
 
 Metod 1 levererar information om tilldelning och användning ner på individnivå och är därför att föredra. Metod 2 aggregerar data och kan användas som ett alternativ under tiden tills tjänsteleverantörer får klart API för metod 1.
 
