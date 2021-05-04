@@ -1,5 +1,3 @@
-
-
 # API för Beställning och Leverans
 
 ##  Bakgrund  
@@ -7,13 +5,15 @@ Gruppen Beställning och Leverans har haft uppdraget att ta fram en serie av API
 
 Den första versionen består av tre API:er: Beställning, Tilldelning och Statistik.
 
-**1. Order**: Används av webbshopen för att anropa läromedelsproducenten och berätta hur många av en viss licens som köpts in av en viss kund.
+* **Beställning**
 
-**2. Avbeställning/Retur**: Anrop från webbshopen till läromedelsproducenten för att be om att avbeställa ett antal licenser på en eller flera artiklar.
+  * **Order**: Används av webbshopen för att anropa läromedelsproducenten och berätta hur många av en viss licens som köpts in av en viss kund.
 
-**3 . Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+  * **Retur**: Anrop från webbshopen till läromedelsproducenten för att be om att avbeställa ett antal licenser på en eller flera artiklar.
 
-**4. Statistik**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
+* **Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+
+* **Statistik**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
 
 Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 
@@ -169,12 +169,14 @@ Anropet görs när kund önskar returnera ett antal oanvända licenser, kopplade
 		"name": "",
 	},
 
-	"orderRows": [{
-		"orderRowId": "",
-		"articleNumber": "",
-		"quantity": 1,
-		"licenseKeys": [""]
-	}]
+	"orderRows": [
+		{
+			"orderRowId": "",
+			"articleNumber": "",
+			"quantity": 1,
+			"licenseKeys": [""]
+		}
+	]
 }
 ```
 
@@ -215,16 +217,18 @@ Tjänsteleverantören svarar klienten direkt i anropet, eller senare till `reply
 	"serviceProviderId": "",
 	"clientOrderNumber": "",
 
-	"orderRows":[{
-		"orderRowId": "",
-		"articleNumber": "",
-		"quantity": 1,
-		"unitRefundAmount": "",
-		"vatPercent": "",
-		"status": "",
-		"errorMessage": "",
-		"licenseKeys": [""]
-	}],
+	"orderRows":[
+		{
+			"orderRowId": "",
+			"articleNumber": "",
+			"quantity": 1,
+			"unitRefundAmount": "",
+			"vatPercent": "",
+			"status": "",
+			"errorMessage": "",
+			"licenseKeys": [""]
+		}
+	],
 }
 
 ```
