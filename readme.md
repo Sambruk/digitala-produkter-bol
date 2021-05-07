@@ -327,6 +327,7 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
             id: ""
         },
         licenseKey:"",
+	productUrl:"",
         used:true,
         validFrom:"",
         validTo:""
@@ -348,6 +349,7 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 | assignedLicenses.user.identitySource| string | x | Användarens identity provider |
 | assignedLicenses.user.id| string | x | Användarens id |
 | assignedLicenses.licenseKey | object | x | Licensnyckeln som är tilldelad |
+| assignedLicenses.productUrl | string |  | URL till produkten |
 | assignedLicenses.used | boolean | x | True om användaren har börjat använda tjänsten |
 | assignedLicenses.validFrom | date | | När licensen började gälla |
 | assignedLicenses.validTo | date | | Hur länge licensen gäller |
