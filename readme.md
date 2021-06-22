@@ -7,11 +7,11 @@ Gruppen Beställning och Leverans har haft uppdraget att ta fram en serie av API
 
 Den första versionen består av tre API:er: Beställning, Tilldelning och Statistik.
 
-**1. Order**: Används av webbshopen för att anropa läromedelsproducenten och berätta hur många av en viss licens som köpts in av en viss kund.
+**[1. Order](#1-order)**: Används av webbshopen för att anropa läromedelsproducenten och berätta hur många av en viss licens som köpts in av en viss kund.
 
-**2 . Tilldelning**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+**[2. Tilldelning](#2-tilldelning)**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
 
-**3. Statistik**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
+**[3. Statistik](#3-statistik)**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
 
 Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 
