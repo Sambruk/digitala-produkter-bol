@@ -131,7 +131,7 @@ Tjänsteleverantören svarar klienten i anropet. Vid t.ex. restnoteringar kan tj
 | beingProcessed | Köpet hanteras av tjänsteleverantören. Om tjänsteleverantören svarar med den här statusen förväntar sig klienten att få ett nytt anrop till replyToUrl vid ett senare tillfälle. |
 | backordered | Restnoterad, tjänsteleverantören kan skicka med ett förväntat leveransdatum i deliveryDate. På samma sätt som i beingProcessed så förväntar sig klienten att få ett anrop till replyToUrl. |
 | delivered | Köpet har gått igenom då förväntar sig klienten att hitta nycklarna som kan användas vid tilldelningen i licenseKeys  |
-| canceled | Annulerad, köpet har inte gått igneom. Tjänsteleverantören kan skicka med mer detaljerad information i errorMessage |
+| canceled | Annulerad, köpet har inte gått igenom. Tjänsteleverantören kan skicka med mer detaljerad information i errorMessage |
 
 ## Exempelfiler
 
@@ -145,7 +145,7 @@ En beställning med två produkter med 18st licenser av varje där tilldelning s
 
 Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
 
-# Tilldelning
+# 2. Tilldelning
 
 ## Anrop från licensportal
 
@@ -255,7 +255,7 @@ Enkel tilldelning utan grupptillhörighet. Tilldelning lyckas enligt svaret (Til
 
 Tilldelning med hänvisning till en grupp. Tilldelningen misslyckades (Tilldelning 2 Svar.js). 
 
-# Statistik
+# 3. Statistik
 
 Metod 1 levererar information om tilldelning och användning ner på individnivå och är därför att föredra. Metod 2 aggregerar data och kan användas som ett alternativ under tiden tills tjänsteleverantörer får klart API för metod 1.
 
