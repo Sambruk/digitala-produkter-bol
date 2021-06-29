@@ -203,7 +203,7 @@ Anropet görs när kund önskar returnera ett antal oanvända licenser, kopplade
 | account.name | string | x | Namnet på skolenheten |
 | orderRows | array | x| De artiklar som ska beställas |
 | orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
-| orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
+| orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska returneras |
 | orderRows.quantity | number | x | Antal licenser som kund önskar returnera |
 | orderRows.licenseKeys | array | x | De specifika licenser som kund önskar returnera |
 
