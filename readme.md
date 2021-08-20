@@ -257,12 +257,22 @@ Tjänsteleverantören svarar klienten direkt i anropet, eller senare till `reply
 | orderRows.licenseKeys | array | x | De specifika licenser som har returnerats |
 
 \* = licensnycklar är obligatoriska om statusen är delivered och klienten anropade med notifyUser = false.
-### Värdelistor till ordersvaret
+### Värdelistor till "status" i ordersvaret
 | Status | Förklaring |
 | --- | --- |
 | beingProcessed | Retur hanteras av tjänsteleverantören. Om tjänsteleverantören svarar med den här statusen förväntar sig klienten att få ett nytt anrop till replyToUrl vid ett senare tillfälle. |
 | processed | Tjänsteleverantören godkänner retur. |
 | declined | Tjänsteleverantören nekar retur och kan skicka med mer detaljerad information i `errorMessage`. |
+
+### Värdelistor till "errorMessage" i ordersvaret
+| Värde | Betydelse |
+| --- | --- |
+| errorUnexpected | Oväntat fel (tekniskt fel - prova igen senare). |
+| errorLicensesAreAssigned | Licens(er) är tilldelade (frigör licenser och försök igen). |
+| errorInsufficientReturnableLicenses | Användaren har försökt avbeställa fler licenser än som tillåts/går avbeställa (prova färre antal). |
+| errorOrderReturnPolicyExpired | Beställningen är för gammal; licenser får ej längre returneras. |
+| errorNoReturnPolicy | Villkor för denna beställning/kund/leverantör tillåter inte retur. |
+| errorNoReturnableLicenses | Samtliga licenser har någon gång använts (varit tilldelade) och får då ej returneras. |
 
 # Tilldelning
 
