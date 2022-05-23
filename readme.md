@@ -37,6 +37,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		id: "",
 		identitySource: "",
 		schoolUnitCode: "",
+		unitCodeother: "",
 		organizationNumber: "",
 		name: "",
 	},
@@ -56,8 +57,9 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
 | clientOrderNumber | string | x | Klientens ordernummer |
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
-| notifyReference | bool | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
-| isPrivatePurchase | bool | | True ifall det är en privatperson som beställer |
+| notifyReference | boolean | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
+| isPrivatePurchase | boolean | | True ifall det är en privatperson som beställer |
+| deliveryLocation | string |  | Leveranspunkt om annan än läromedelsleverantören | 
 | reference | object | | Namn och epost på den som har beställt licensen. Ifall notifyReference är satt till true så är det den personen som är mottagaren av licensen |
 | reference.name | string | | Namnet på beställaren |
 | reference.email | string | | Beställarens epost |
@@ -65,13 +67,16 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
 | account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
 | account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
+| account.unitCodeOther | string |  | Annan typ av kod när skolenhetskod saknas. Ska ha samma format som Skolfederations unitCodeOther | 
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
 | orderRows | array | x| De artiklar som ska beställas |
 | orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
-| orderRows.quantity | number | x | Hur många som ska köpas |
+| orderRows.quantity | integer | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
+| orderRows.duration | integer |  | Längd på licens | 
+| orderRows.durationUnit | string |  | enhet på längd | 
 
 ### Värdelistor till orderanropet
 | identitySource | Förklaring |
@@ -80,6 +85,14 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | EGIL | EGIL-klientens id = kommunens egna id? |
 | Google | Google-id |
 | Microsoft | Microsoft-id |
+
+| durationUnit | Förklaring |
+| --- | --- |
+| D | dagar |
+| W | veckor |
+| M | Months |
+| Y | Year |
+
 
 ## Svar från läromedelsproducent
 
@@ -115,14 +128,14 @@ Tjänsteleverantören svarar klienten i anropet. Vid t.ex. restnoteringar kan tj
 | orderRows | array | x | De artiklar som har beställts |
 | orderRows.orderRowId | string | x | Radens id, ska vara samma som klienten skickade med i anropet |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
-| orderRows.quantity | number | x | Hur många som ska köpas. För verifiering bör vara samma som i anropet |
-| orderRows.unitPrice | number | | Styckpriset (inkl. eventuella rabatter). Valfritt att skicka med |
-| orderRows.discountPercent | number | | Vilken rabatt klienten får enligt avtal |
-| orderRows.vatPercent | number | | Hur mycket moms som betalas för artikeln |
+| orderRows.quantity | integer | x | Hur många som ska köpas. För verifiering bör vara samma som i anropet |
+| orderRows.unitPrice | decimal | | Styckpriset (inkl. eventuella rabatter). Valfritt att skicka med |
+| orderRows.discountPercent | decimal | | Vilken rabatt klienten får enligt avtal |
+| orderRows.vatPercent | integer | | Hur mycket moms som betalas för artikeln |
 | orderRows.status | string | x | Kan vara beingProcessed, backordered, delivered eller canceled. Förklaras längre ner |
 | orderRows.errorMessage | string | | Valfritt, vid annuleringar kan man skicka med ett felmeddelande |
 | orderRows.deliveryDate | string | | Vid restnotering, leveransdatum |
-| orderRows.licenseKeys | array | * | De licensnycklar som man ska använda vid tilldelning. En array av strängar. Har man beställt 10 så ska arrayen innehålla 10 nycklar |
+| orderRows.licenseKeys | array of strings | * | De licensnycklar som man ska använda vid tilldelning. En array av strängar. Har man beställt 10 så ska arrayen innehålla 10 nycklar |
 
 \* = licensnycklar är obligatoriska om statusen är delivered och klienten anropade med notifyUser = false.
 ### Värdelistor till ordersvaret
@@ -189,10 +202,11 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 | account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
 | account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
 | account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
+| account.unitCodeOther | string |  | Annan enhetskod om skolenhetskod saknas. Ska följa samma mönster som Skolfederations unitCodeOther |
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
 | assignmentRows| array | x | Tilldelningarna |
-| assignmentRows.user| object | x | Den användarens som ska använda en licens |
+| assignmentRows.user | object | x | Den användarens som ska använda en licens |
 | assignmentRows.user.id| string | x | Användarens id |
 | assignmentRows.user.identitySource | string | x | Källan till användarens id |
 | assignmentRows.licenseKey| string | x | Licensnyckeln, en av de nycklar som tjänsteleverantören svarade med på köpet  |
@@ -294,9 +308,11 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 | account | object | x | Beställande organisationen, oftast en skolenhet |
 | account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
 | account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
-| account.schoolUnitCode | string | x | Skolenhetskod om det är en skolenhet som beställer |
+| account.schoolUnitCode | string | * | Skolenhetskod om det är en skolenhet som beställer |
+| account.unitCodeOther | string | * | Enhetskod om skolenhet saknas | 
 | account.OrganizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
+\* Antingen skolenhetskod eller annan enhetskod måste skickas med
 
 ### Svar
 
@@ -391,6 +407,7 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
 | schoolUnits | array | x | De skolenheter som klienten har begärt |
 | schoolUnits.schoolUnitCode | string | * | Skolenhetskoden |
+| schoolUnits.unitCodeOther | string | * | Enhetskod om skolenhet saknas | 
 | schoolUnits.organizationNumber | string | * | Organisationsnumret |
 | schoolUnits.licenses | array | x | Skolenhetens licenser |
 | schoolUnits.licenses.articleNumber | string | x | Artikelnummer på tjänsten  |
@@ -398,10 +415,10 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 | schoolUnits.licenses.ordered | date | | När tjänsten beställdes  |
 | schoolUnits.licenses.validFrom | date | | När den började gälla  |
 | schoolUnits.licenses.validTo | date | | När den slutar gälla |
-| schoolUnits.licenses.totalLicenses | number | x | Hur många som beställdes |
-| schoolUnits.licenses.unassignedLicenses | number | x | Hur många som är otilldelade |
-| schoolUnits.licenses.assignedLicenses | number | x | Hur många som är tilldelade |
-| schoolUnits.licenses.usedLicenses | number | | Hur många som har använts |
+| schoolUnits.licenses.totalLicenses | integer | x | Hur många som beställdes |
+| schoolUnits.licenses.unassignedLicenses | integer | x | Hur många som är otilldelade |
+| schoolUnits.licenses.assignedLicenses | integer | x | Hur många som är tilldelade |
+| schoolUnits.licenses.usedLicenses | integer | | Hur många som har använts |
 | schoolUnits.licenses.referenceName | string | | Den som beställer licensen |
 \* Antingen organisationsnummer eller skolenhetskod måste skickas med
 
