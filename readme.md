@@ -423,4 +423,4 @@ Skickas i formatet ISO 8601 (YYYY-MM-DD) “2020-03-30”.
 
 Alla anrop sker med HTTP POST om inget annat anges.
 
-Autentisering sker med fördel via ömsesidig TLS (ex. via Moa när detta är möjligt), men kan också ske via tokens (RFC 7519) eller API-nycklar.
+Autentisering sker med fördel via ömsesidig TLS (ex. via Moa när detta är möjligt), men kan också ske via tokens (RFC 7519) eller API-nycklar i HTTP header.
