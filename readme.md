@@ -24,6 +24,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 	clientId: "",
 	serviceProviderId : "",
 	clientOrderNumber : "",
+	clientOrderReference : "",
 	replyToUrl: "",
 	notifyReference: true,
 	isPrivatePurchase: true,
@@ -55,6 +56,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
 | clientOrderNumber | string | x | Klientens ordernummer |
+| clientOrderReference | string |  | Klientens orderreferens eller märkning på ordern | 
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
 | notifyReference | bool | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
 | isPrivatePurchase | bool | | True ifall det är en privatperson som beställer |
