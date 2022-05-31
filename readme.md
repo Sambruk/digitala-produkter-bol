@@ -145,12 +145,6 @@ En beställning med två produkter med 18st licenser av varje där tilldelning s
 
 Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
 
-## Svar med annat ISBN
-
-Om en artikel har ersatts med annat ISBN ska samma radnummer bevaras. 
-
-Om artikeln är ett paket som innehåller flera andra artiklar ska alla returnerade ISBN ha samma radnummer som det beställda paketet.
-
 # Tilldelning
 
 ## Anrop från licensportal
