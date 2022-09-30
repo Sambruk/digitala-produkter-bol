@@ -83,7 +83,9 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 
 ## Svar från läromedelsproducent
 
-Tjänsteleverantören svarar klienten i anropet. Vid t.ex. restnoteringar kan tjänsteleverantören anropa klienten till den url som klienten angav i replyToUrl. I bägge fallen är det samma värden som skickas i meddelandet.
+Tjänsteleverantören ska svara klienten i anropet. Vid t.ex. restnoteringar kan tjänsteleverantören anropa klienten till den url som klienten angav i replyToUrl. I bägge fallen är det samma värden som skickas i meddelandet. 
+
+Vid asynkrona svar ska endast uppdaterade rader skickas med. Statusen "Delivered" ska anses vara slutgiltig och behöver således inte skickas med igen.
 
 ```javascript
 {
