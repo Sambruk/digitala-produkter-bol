@@ -419,6 +419,8 @@ Hämtar licenser och deras status för antingen organisationsnummer (Statistik M
 
 Skickas i formatet ISO 8601 (YYYY-MM-DD) “2020-03-30”.
 
-# Säkerhet
+# Metod och autentisering
 
-Alla anrop sker över https. Autentisering kan ske via basic authentication eller annan överenskommen metod mellan parterna.
+Alla anrop sker med HTTP POST om inget annat anges.
+
+Autentisering sker med fördel via ömsesidig TLS (ex. via Moa när detta är möjligt), men kan också ske via tokens (RFC 7519) eller API-nycklar i HTTP header.
