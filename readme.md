@@ -39,13 +39,21 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		schoolUnitCode: "",
 		organizationNumber: "",
 		name: "",
+		address: "",
+		postalCode: "",
+		city: "",
+		country: ""
 	},
 
 	orderRows: [{
 		orderRowId: "",
 		articleNumber: "",
 		quantity: 1,
-		fromDate:""
+		fromDate:"",
+		duration: 12,
+		unit: "months",
+		discount: 15
+
 	}]
 }
 ```
@@ -67,11 +75,19 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
+| account.address | string | x | Gatuadress |
+| account.postalCode | string | x | Postnummer |
+| account.city | string | x | Postort |
+| account.country | string | x | Landskod (ISO 3166) |
 | orderRows | array | x| De artiklar som ska beställas |
 | orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
+| orderRows.duration | number | x | Antal för längd på licens (heltal) |
+| orderRows.durationUnit | number | x | enhet för längd på licens (Days, Weeks, Months, Years?) |
+| orderRows.discount | number | x | Radrabatt som återförsäljaren ska ha. Bra att ha vid kampanjer och offertköp |
+
 
 ### Värdelistor till orderanropet
 | identitySource | Förklaring |
