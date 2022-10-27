@@ -23,9 +23,11 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 {
 	clientId: "",
 	serviceProviderId : "",
+	siteId: "",
 	clientOrderNumber : "",
 	replyToUrl: "",
 	notifyReference: true,
+	deliveryLocation: "";
 	isPrivatePurchase: true,
 
 	reference: {
@@ -45,7 +47,11 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		orderRowId: "",
 		articleNumber: "",
 		quantity: 1,
-		fromDate:""
+		fromDate:"",
+		discountPercent:"",
+		discountCode:"",
+		EndCustomerOrderNumber:"",
+		articleCampaignPrice:""
 	}]
 }
 ```
@@ -54,9 +60,11 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | --- | --- | --- | --- |
 | clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
+| siteId | number |  | Id på avdelning/sida hos tjänsteleverantör |
 | clientOrderNumber | string | x | Klientens ordernummer |
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
-| notifyReference | bool | | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
+| notifyReference | bool |  | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
+| deliveryLocation | string |  | Plattform dit licens ska levereras | 
 | isPrivatePurchase | bool | | True ifall det är en privatperson som beställer |
 | reference | object | | Namn och epost på den som har beställt licensen. Ifall notifyReference är satt till true så är det den personen som är mottagaren av licensen |
 | reference.name | string | | Namnet på beställaren |
@@ -68,10 +76,14 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
 | orderRows | array | x| De artiklar som ska beställas |
-| orderRows.orderRowId | string | x | Radens id, används för att koppla ohop fråga med svar |
+| orderRows.orderRowId | string | x | Radens id, används för att koppla ihop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
+| orderRows.discountPercent | number |  |Siffra med hur många procent rabatt som ska gälla på denna orderrad om den avviker från det normala. Bör följas av en kod nedan|
+| orderRows.discountCode | string |  | Kod som hör ihop med discountPercent. Kan användas för kampanjer eller speciella erbjudanden mot en specifik kund |
+| orderRows.endCustomerOrderNumber | string |  | Slutkunds ordernummer. Kan användas för att skicka med slutkundens ordernummer/referens. Användbart om slutkunden använder sig av en inköpsportal |
+| orderRows.articleCampaignPrice | number |  | Om priset avviker från listpris. Kan användas vid offertköp eller kampanjer. |
 
 ### Värdelistor till orderanropet
 | identitySource | Förklaring |
@@ -156,6 +168,8 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 	clientId:"",
 	serviceProviderId: "",
 	replyToUrl:"",
+	
+	action: "",
 
 	account: {
         identitySource: "",
@@ -172,6 +186,7 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 		},
 
 		licenseKey: "",
+		orderNumber: "",
 		assignedByGroups: [{		
 			identitySource: "",
 			id: "",
@@ -187,6 +202,7 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 | clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
 | replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
+| action | string | x | Assign (tilldela) eller Unassign (fråndela) |
 | account | object | x | Beställande organisationen, oftast en skolenhet |
 | account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
 | account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
@@ -313,6 +329,7 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
             id: ""
         },
         licenseKey:"",
+	productUrl:"",
         used:true,
         validFrom:"",
         validTo:""
@@ -334,6 +351,7 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 | assignedLicenses.user.identitySource| string | x | Användarens identity provider |
 | assignedLicenses.user.id| string | x | Användarens id |
 | assignedLicenses.licenseKey | object | x | Licensnyckeln som är tilldelad |
+| assignedLicenses.productUrl | string |  | URL till produkten |
 | assignedLicenses.used | boolean | x | True om användaren har börjat använda tjänsten |
 | assignedLicenses.validFrom | date | | När licensen började gälla |
 | assignedLicenses.validTo | date | | Hur länge licensen gäller |
