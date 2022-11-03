@@ -27,7 +27,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 	clientOrderNumber : "",
 	replyToUrl: "",
 	notifyReference: true,
-	deliveryLocation: "";
+	deliveryLocation: "",
 	isPrivatePurchase: true,
 
 	reference: {
