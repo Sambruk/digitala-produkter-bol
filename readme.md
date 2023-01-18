@@ -53,7 +53,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		quantity: 1,
 		fromDate:"",
 		duration: 12,
-		unit: "months",
+		unit: "M",
 		discountPercent:"",
 		discountCode:"",
 		EndCustomerOrderNumber:"",
@@ -82,10 +82,10 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
-| account.address | string | x | Gatuadress |
-| account.postalCode | string | x | Postnummer |
-| account.city | string | x | Postort |
-| account.country | string | x | Landskod (ISO 3166) |
+| account.address | string |  | Gatuadress |
+| account.postalCode | string |  | Postnummer |
+| account.city | string |  | Postort |
+| account.country | string |  | Landskod (ISO 3166) |
 | orderRows | array | x| De artiklar som ska beställas |
 | orderRows.orderRowId | string | x | Radens id, används för att koppla ihop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
