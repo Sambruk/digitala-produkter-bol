@@ -53,7 +53,7 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		quantity: 1,
 		fromDate:"",
 		duration: 12,
-		unit: "M",
+		durationUnit: "M",
 		discountPercent:"",
 		discountCode:"",
 		EndCustomerOrderNumber:"",
