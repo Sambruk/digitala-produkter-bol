@@ -92,8 +92,8 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
 
-| orderRows.duration | number |  | Antal för längd på licens (heltal) |
-| orderRows.durationUnit | number |  | enhet för längd på licens enligt ISO-8601: D (Days) W (Weeks), M (Months), Y (Years) |
+| orderRows.duration | number | * | Antal för längd på licens (heltal). Skickas endast med om produkten finns med olika längder på samma artikelnummer. |
+| orderRows.durationUnit | number | * | enhet för längd på licens enligt ISO-8601: D (Days) W (Weeks), M (Months), Y (Years). Skickas endast med om produkten finns med olika längder på samma artikelnummer. |
 | orderRows.discountPercent | number |  |Siffra med hur många procent rabatt som ska gälla på denna orderrad om den avviker från det normala. Bör följas av en kod nedan|
 | orderRows.discountCode | string |  | Kod som hör ihop med discountPercent. Kan användas för kampanjer eller speciella erbjudanden mot en specifik kund |
 | orderRows.endCustomerOrderNumber | string |  | Slutkunds ordernummer. Kan användas för att skicka med slutkundens ordernummer/referens. Användbart om slutkunden använder sig av en inköpsportal |
