@@ -41,6 +41,10 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		schoolUnitCode: "",
 		organizationNumber: "",
 		name: "",
+		address: "",
+		postalCode: "",
+		city: "",
+		country: ""
 	},
 
 	orderRows: [{
@@ -48,10 +52,13 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 		articleNumber: "",
 		quantity: 1,
 		fromDate:"",
+		duration: 12,
+		durationUnit: "M",
 		discountPercent:"",
 		discountCode:"",
 		EndCustomerOrderNumber:"",
 		articleCampaignPrice:""
+
 	}]
 }
 ```
@@ -75,11 +82,18 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 | account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
+| account.address | string |  | Gatuadress |
+| account.postalCode | string |  | Postnummer |
+| account.city | string |  | Postort |
+| account.country | string |  | Landskod (ISO 3166) |
 | orderRows | array | x| De artiklar som ska beställas |
 | orderRows.orderRowId | string | x | Radens id, används för att koppla ihop fråga med svar |
 | orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
 | orderRows.quantity | number | x | Hur många som ska köpas |
 | orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
+
+| orderRows.duration | number | * | Antal för längd på licens (heltal). Skickas endast med om produkten finns med olika längder på samma artikelnummer. |
+| orderRows.durationUnit | string | * | enhet för längd på licens enligt ISO-8601: D (Days) W (Weeks), M (Months), Y (Years). Skickas endast med om produkten finns med olika längder på samma artikelnummer. |
 | orderRows.discountPercent | number |  |Siffra med hur många procent rabatt som ska gälla på denna orderrad om den avviker från det normala. Bör följas av en kod nedan|
 | orderRows.discountCode | string |  | Kod som hör ihop med discountPercent. Kan användas för kampanjer eller speciella erbjudanden mot en specifik kund |
 | orderRows.endCustomerOrderNumber | string |  | Slutkunds ordernummer. Kan användas för att skicka med slutkundens ordernummer/referens. Användbart om slutkunden använder sig av en inköpsportal |
