@@ -172,12 +172,20 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 	action: "",
 
 	account: {
-        identitySource: "",
-        id: "",
-        schoolUnitCode: "",
-        organizationNumber: "",
-        name: "",
+        	identitySource: "",
+        	id: "",
+        	schoolUnitCode: "",
+        	organizationNumber: "",
+        	name: "",
 	},
+	
+	unassignmentRows: [{
+		user: {
+			identitySource: "",
+			id: ""
+		},
+		licenseKey: ""
+	}],
 	
 	assignmentRows: [{
 		user: {
@@ -209,11 +217,16 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 | account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
 | account.organizationNumber | string | x | Organisationsnummer på beställaren |
 | account.name | string | x | Namnet på skolenheten |
+| unassignmentRows| array | | Befintliga tilldelningar som ska släppas |
+| unassignmentRows.user| object | x | Den användaren som ska bli av med licens |
+| unassignmentRows.user.id| string | x | Användarens id |
+| unassignmentRows.user.identitySource | string | x | Källan till användarens id |
+| unassignmentRows.licenseKey| string | x | Licensnyckeln, en av de nycklar som tjänsteleverantören svarade med på köpet. Ange artikelnummer om tjänsteleverantören inte använder licensnycklar.  |
 | assignmentRows| array | x | Tilldelningarna |
 | assignmentRows.user| object | x | Den användarens som ska använda en licens |
 | assignmentRows.user.id| string | x | Användarens id |
 | assignmentRows.user.identitySource | string | x | Källan till användarens id |
-| assignmentRows.licenseKey| string | x | Licensnyckeln, en av de nycklar som tjänsteleverantören svarade med på köpet  |
+| assignmentRows.licenseKey| string | x | Licensnyckeln, en av de nycklar som tjänsteleverantören svarade med på köpet. Ange artikelnummer om tjänsteleverantören inte använder licensnycklar.  |
 | assignmentRows.assignedByGroups| array | | De grupper som en användare blev tilldelad genom. Tilldelningen är individuell men klienten kan skicka med information om grupptillhörighet och tjänsteleverantören kan välja att använda den i sin miljö |
 | assignmentRows.assignedByGroups.identitySource| string |  | Källan till användarens id. |
 | assignmentRows.assignedByGroups.id| string | x | Gruppens id |
@@ -227,12 +240,20 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 	serviceProviderId:"",
 	clientId:"",
 	
+	unassignmentRows: [{
+		user: {
+			identitySource: "",
+			id: ""
+    		},
+		licenseKey:"",
+		status:"",
+		errorMessage:""
+	}]
 	assignmentRows: [{
 		user: {
 			identitySource: "",
 			id: ""
-    	},
-    
+    		},
 		licenseKey:"",
 		status:"",
 		productUrl:"",
@@ -247,7 +268,14 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 | --- | --- | --- | --- |
 | clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
 | serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| assignmentRows| array | x | Raderna som har hanterats |
+| unassignmentRows| array | x | Raderna som har hanterats för att släppa licenser |
+| unassignmentRows.user| object | x | Användaren som har förlorat en licens |
+| unassignmentRows.user.identitySource| string | x | Källan för användarens id |
+| unassignmentRows.user.id| string | x | Användarens id |
+| unassignmentRows.licenseKey| string | x | Licensnyckeln som har släppts fri|
+| unassignmentRows.status| string | x | beingProcessed, unassigned eller failed |
+| unassignmentRows.errorMessage| string | | Eventuellt felmeddelande ifall tjänsteleverantören svarar med failed |
+| assignmentRows| array | x | Raderna som har hanterats för tilldelning |
 | assignmentRows.user| object | x | Användaren som har fått en licens |
 | assignmentRows.user.identitySource| string | x | Källan för användarens id |
 | assignmentRows.user.id| string | x | Användarens id |
