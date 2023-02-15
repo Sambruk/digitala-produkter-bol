@@ -1,23 +1,25 @@
 
 
-# API för Beställning och Leverans
+# API for Order and Delivery (of digital educational resources)
 
-##  Bakgrund  
-Gruppen Beställning och Leverans har haft uppdraget att ta fram en serie av API:er som gör det möjligt för webbshopar och läromedelsproducenter att prata med varandra, samt förenkla hanteringen av licenser efter att köpet har genomförts.
+##  Background  
+The taskforce "Beställning och Leverans" was given the assignment of developing a series of APIs that enables webshop and producers of digital educational resources to exchange data, and simplify the administration of licenses after the purchase of said licenses.
 
-Den första versionen består av tre API:er: Beställning, Tilldelning och Statistik.
+The first version consists of three APIs: Order, Assignment and Statistics.
 
-**[1. Order](#1-order)**: Används av webbshopen för att anropa läromedelsproducenten och berätta hur många av en viss licens som köpts in av en viss kund.
+FYI: Some terms have the Swedish name in parenthesis and the file names of the sample files are still in Swedish. 
 
-**[2. Tilldelning](#2-tilldelning)**: Efter att köpet har genomförts kan en beställare använda en licensportal för att göra en tilldelning. Licensportalen kan sitta ihop med webbshopen eller vara fristående. En tilldelning går ut på att beställaren skickar information från licensportalen till läromedelsproducenten om vilka som ska använda licenserna.
+**[1. Order](#1-order)**: Used by the webshop to place an order with the producer for a specific customer.
 
-**[3. Statistik](#3-statistik)**: En licensportal kan hämta statistik från läromedelsproducenter och kan presentera hur många licenser som köpts in och hur många som faktiskt använts. Man kan även se när licenserna går ut för att planera nya inköp och se över sina behov.
+**[2. Assignment](#2-assignment)**: After the purchase has been completed, the customer can use a license administration portal to perform an assignment. The admin portal can either be a part of the webshop or completely separate entity. To perform an assignment the license portal simply sends the information required from the license portal to the producer regarding who should be given access to which licenses.
 
-Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
+**[3. Statistics](#3-statistics)**: A license portal can fetch data from the producers and present the customer with how many licenses that have been acquired and how many that are actually being used. The data includes information on when the licenses were purchased and when they expire.
+
+Samples files are available via GitHub together with the most up to date information.
 
 # 1. Order
 
-## Anrop från webbshop
+## Call from webshop
 
 ```javascript
 {
@@ -56,48 +58,48 @@ Exempelfiler finns att tillgå via GitHub tillsammans med dokumentationen.
 }
 ```
 
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| siteId | number |  | Id på avdelning/sida hos tjänsteleverantör |
-| clientOrderNumber | string | x | Klientens ordernummer |
-| replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
-| notifyReference | bool |  | Om inte klienten har en licensportal kan man sätta till true så levererar tjänsteleverantören direkt till beställaren |
-| deliveryLocation | string |  | Plattform dit licens ska levereras | 
-| isPrivatePurchase | bool | | True ifall det är en privatperson som beställer |
-| reference | object | | Namn och epost på den som har beställt licensen. Ifall notifyReference är satt till true så är det den personen som är mottagaren av licensen |
-| reference.name | string | | Namnet på beställaren |
-| reference.email | string | | Beställarens epost |
-| account | object | x | Beställande organisationen, oftast en skolenhet |
-| account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
-| account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
-| account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
-| account.organizationNumber | string | x | Organisationsnummer på beställaren |
-| account.name | string | x | Namnet på skolenheten |
-| orderRows | array | x| De artiklar som ska beställas |
-| orderRows.orderRowId | string | x | Radens id, används för att koppla ihop fråga med svar |
-| orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
-| orderRows.quantity | number | x | Hur många som ska köpas |
-| orderRows.fromDate | date | | Från och med när beställningen ska börja gälla. Kan användas ifall licensen börjar gälla direkt vid beställning. Valfritt att skicka med. Om leverantören stödjer så borde de svara med backordered och skicka med datumet i restnotering. Stödjer tjänsteleverantören inte så borde de svara med canceled |
-| orderRows.discountPercent | number |  |Siffra med hur många procent rabatt som ska gälla på denna orderrad om den avviker från det normala. Bör följas av en kod nedan|
-| orderRows.discountCode | string |  | Kod som hör ihop med discountPercent. Kan användas för kampanjer eller speciella erbjudanden mot en specifik kund |
-| orderRows.endCustomerOrderNumber | string |  | Slutkunds ordernummer. Kan användas för att skicka med slutkundens ordernummer/referens. Användbart om slutkunden använder sig av en inköpsportal |
-| orderRows.articleCampaignPrice | number |  | Om priset avviker från listpris. Kan användas vid offertköp eller kampanjer. |
+| clientId | string | x | Webshop id, E.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, E.g. nok.se |
+| siteId | integer |  | Id of a certain sub-section at the supplier |
+| clientOrderNumber | string | x | Customer order number |
+| replyToUrl | string | x | The URL to use if the supplier needs to perform additional order replies |
+| notifyReference | boolean |  | If the customer does not have a license management system this can be set to "true" and the delivery will go directly to the customers, if set to false the customer expects the license to be delivered to the license management system |
+| deliveryLocation | string | Name of the license management system |
+| isPrivatePurchase | boolean | | Set to true in case of a private individual and not a business transaction |
+| reference | object | | Name and e-mail to the customer. In case notifyReference is set to true this is the recipient of the license |
+| reference.name | string | | Customer name |
+| reference.email | string | | Customer e-mail |
+| account | object | x | Principal organization, commonly a school unit |
+| account.id | string | x | Customer ID, e.g. account number |
+| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
+| account.schoolUnitCode | string |  | School unit code |
+| account.organizationNumber | string | x | Organization number |
+| account.name | string | x | Name of the school unit |
+| orderRows | array | x| The articles that are being ordered |
+| orderRows.orderRowId | string | x | Row ID, used to match order replys with the order |
+| orderRows.articleNumber | string | x | Article number of the product being ordered |
+| orderRows.quantity | number | x | Number of copies being ordered |
+| orderRows.fromDate | date | | The date when the order should become active. Can be used if the license is activated at purchase. If supported, the supplier can reply with "backordered" and the date. If not supported the supplier should reply with "canceled" |
+| orderRows.discountPercent | number |  | Deviating discount for this particular orderrow. Should be followed by a discount code |
+| orderRows.discountCode | string |  | Code that explains the deviating discount on the row above. Can be used for campaigns or offers targeting a specific customer |
+| orderRows.endCustomerOrderNumber | string |  | Customer order number. Can be used to pass along the customer order number or some other reference that could be useful to the supplier |
+| orderRows.articleCampaignPrice | number |  | If the price deviates from the list price. Used with quotes or campigns. |
 
-### Värdelistor till orderanropet
-| identitySource | Förklaring |
+### Value list for Order
+| identitySource | Description |
 | --- | --- |
-| client | Licensportalens egna id |
-| EGIL | EGIL-klientens id = kommunens egna id? |
+| client | Webshop prorietary id |
+| EGIL | EGIL-client id |
 | Google | Google-id |
 | Microsoft | Microsoft-id |
 
-## Svar från läromedelsproducent
+## Order reply
 
-Tjänsteleverantören ska svara klienten i anropet. Vid t.ex. restnoteringar kan tjänsteleverantören anropa klienten till den url som klienten angav i replyToUrl. I bägge fallen är det samma värden som skickas i meddelandet. 
+The supplier is expected to reply directly. For backorders the supplier can make an asynchronous call to the URL specified in replyToUrl segment. Both scenarios expect to receive the same JSON (see below). 
 
-Vid asynkrona svar ska endast uppdaterade rader skickas med. Statusen "Delivered" ska anses vara slutgiltig och behöver således inte skickas med igen.
+During asynchronous  replies only order lines that have been updated should be sent. The status "Delivered" is final and can not be updated.
 
 ```javascript
 {
@@ -121,54 +123,53 @@ Vid asynkrona svar ska endast uppdaterade rader skickas med. Statusen "Delivered
 
 ```
 
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| clientOrderNumber | string | x | Klientens ordernummer. Ska vara samma skickades med i anropet |
-| orderRows | array | x | De artiklar som har beställts |
-| orderRows.orderRowId | string | x | Radens id, ska vara samma som klienten skickade med i anropet |
-| orderRows.articleNumber | string | x | Tjänsteleverantörens id på den artikel som ska köpas |
-| orderRows.quantity | number | x | Hur många som ska köpas. För verifiering bör vara samma som i anropet |
-| orderRows.unitPrice | number | | Styckpriset (inkl. eventuella rabatter). Valfritt att skicka med |
-| orderRows.discountPercent | number | | Vilken rabatt klienten får enligt avtal |
-| orderRows.vatPercent | number | | Hur mycket moms som betalas för artikeln |
-| orderRows.status | string | x | Kan vara beingProcessed, backordered, delivered eller canceled. Förklaras längre ner |
-| orderRows.errorMessage | string | | Valfritt, vid annuleringar kan man skicka med ett felmeddelande |
-| orderRows.deliveryDate | string | | Vid restnotering, leveransdatum |
-| orderRows.licenseKeys | array | * | De licensnycklar som man ska använda vid tilldelning. En array av strängar. Har man beställt 10 så ska arrayen innehålla 10 nycklar |
+| clientId | string | x | Webshop id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, t.ex. nok.se |
+| clientOrderNumber | string | x | Customer order number. |
+| orderRows | array | x | The articles have been ordered |
+| orderRows.orderRowId | string | x | Row ID, used to match order replys with the order |
+| orderRows.articleNumber | string | x | Article number of the product being ordered |
+| orderRows.quantity | number | x | Number of copies accepted |
+| orderRows.unitPrice | number | | Net list price |
+| orderRows.discountPercent | number | | Discount percent |
+| orderRows.vatPercent | number | | VAT percent |
+| orderRows.status | string | x | beingProcessed, backordered, delivered or canceled. See value list below. |
+| orderRows.errorMessage | string | | Used with status canceled  |
+| orderRows.deliveryDate | string | | Used with status backordered |
+| orderRows.licenseKeys | array | * | License keys that can be used when assigning. An array of strings. Number of licenses should be the same as the number of copies ordered |
 
-\* = licensnycklar är obligatoriska om statusen är delivered och klienten anropade med notifyUser = false.
-### Värdelistor till ordersvaret
-| Status | Förklaring |
+\* = license keys are mandatory when the status is delivered and notifyUser is set to false false.
+### Value list order reply
+| Status | Description |
 | --- | --- |
-| beingProcessed | Köpet hanteras av tjänsteleverantören. Om tjänsteleverantören svarar med den här statusen förväntar sig klienten att få ett nytt anrop till replyToUrl vid ett senare tillfälle. |
-| backordered | Restnoterad, tjänsteleverantören kan skicka med ett förväntat leveransdatum i deliveryDate. På samma sätt som i beingProcessed så förväntar sig klienten att få ett anrop till replyToUrl. |
-| delivered | Köpet har gått igenom då förväntar sig klienten att hitta nycklarna som kan användas vid tilldelningen i licenseKeys  |
-| canceled | Annulerad, köpet har inte gått igenom. Tjänsteleverantören kan skicka med mer detaljerad information i errorMessage |
+| beingProcessed | The order is being handled by the supplier. Mandates a follow up call to the URL in replyToUrl. |
+| backordered | The supplier can send an expected delivery date in deliveryDate. Mandates a follow up call to the URL in replyToUrl. |
+| delivered | The order has been processed and the client expects to locate the license keys in the segment licenseKeys  |
+| canceled | The orderline has NOT been approved. The supplier can send more detailed information in errorMessage |
 
-## Exempelfiler
+## Sample files
 
 ### Order 1.js
-En beställning av 1 exemplar till en privatperson som ska börja användas i augusti. En förutsättning är att mottagaren kan hantera fromDate. Mottagaren ska meddela beställaren att produkten finns att använda.
+An order for 1 copy that will be delivered to a private consumer that wants delivery in august. A prerequisite is that the supplier can handle "fromDate". The supplier should notify the customer when the order is activated.
 
-Ordersvaret (Ordersvar 1.js) visar att köpet gick igenom, men att det fortsatt behandlas av mottagaren. Förväntat leveransdatum är satt till 2020-08-15 som önskat.
+Order reply (Ordersvar 1.js) shows the order being processed, which means it is pending approval. Expected deliver date is set to 2020-08-15 as requested.
 
 ### Order 2.js
-En beställning med två produkter med 18st licenser av varje där tilldelning ska genom en licensportal och licenserna ska aktiveras direkt. Webbshoppen ska efter ett lyckat köp meddela licensportalen att tilldelning ska ske (hur detta ska ske är inte specificerat).
+An order containing two products with 18 copies each where assignment will be done through a license management portal and that the licenses should be delivered immediately. The delivery to the license management system is outside the scope of this work.  
 
-Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas via portalen. 
+Orderreply (Ordersvar 2.js) shows that assignment is possible and can be done through the system. 
 
-# 2. Tilldelning
+# 2. Assignment
 
-## Anrop från licensportal
+## Call from license management system
 
 ```javascript
 {
 	clientId:"",
 	serviceProviderId: "",
 	replyToUrl:"",
-	
 	action: "",
 
 	account: {
@@ -187,7 +188,7 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 
 		licenseKey: "",
 		orderNumber: "",
-		assignedByGroups: [{		
+		assignedByGroups: [{
 			identitySource: "",
 			id: "",
 			groupName: ""
@@ -197,29 +198,29 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 
 ```
 
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| replyToUrl | string | x | Den adress som ska användas om tjänsteleverantören inte kan svara direkt |
-| action | string | x | Assign (tilldela) eller Unassign (fråndela) |
-| account | object | x | Beställande organisationen, oftast en skolenhet |
-| account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
-| account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
-| account.schoolUnitCode | string |  | Skolenhetskod om det är en skolenhet som beställer |
-| account.organizationNumber | string | x | Organisationsnummer på beställaren |
-| account.name | string | x | Namnet på skolenheten |
-| assignmentRows| array | x | Tilldelningarna |
-| assignmentRows.user| object | x | Den användarens som ska använda en licens |
-| assignmentRows.user.id| string | x | Användarens id |
-| assignmentRows.user.identitySource | string | x | Källan till användarens id |
-| assignmentRows.licenseKey| string | x | Licensnyckeln, en av de nycklar som tjänsteleverantören svarade med på köpet  |
-| assignmentRows.assignedByGroups| array | | De grupper som en användare blev tilldelad genom. Tilldelningen är individuell men klienten kan skicka med information om grupptillhörighet och tjänsteleverantören kan välja att använda den i sin miljö |
-| assignmentRows.assignedByGroups.identitySource| string |  | Källan till användarens id. |
-| assignmentRows.assignedByGroups.id| string | x | Gruppens id |
-| assignmentRows.assignedByGroups.groupName| string | x | Gruppens namn |
+| clientId | string | x | Client id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, e.g. nok.se |
+| replyToUrl | string | x | The URL to use if the supplier needs to perform additional order replies |
+| action | string | x | Assign (tilldela) or Unassign (fråndela) |
+| account | object | x | Principal organization, commonly a school unit |
+| account.id | string | x | Customer ID, e.g. account number |
+| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
+| account.schoolUnitCode | string |  | School unit code |
+| account.organizationNumber | string | x | Organization number |
+| account.name | string | x | Name of the school unit |
+| assignmentRows| array | x | Array of assignments being made |
+| assignmentRows.user| object | x | The user that is being assigned a license |
+| assignmentRows.user.id| string | x | User ID |
+| assignmentRows.user.identitySource | string | x | Source of the ID |
+| assignmentRows.licenseKey| string | x | License key that was received during the order call |
+| assignmentRows.assignedByGroups| array |  | The groups that a used was assigned through. The assignment is individual, but group property can also be sent if the supplier wants to use that in their system |
+| assignmentRows.assignedByGroups.identitySource| string |  | Source of the group ID. |
+| assignmentRows.assignedByGroups.id| string | x | Group id |
+| assignmentRows.assignedByGroups.groupName| string | x | Group name |
 
-## Svar från läromedelsproducent
+## Reply from supplier
 
 ```javascript
 
@@ -241,45 +242,46 @@ Ordersvaret (Ordersvar 2.js) visar att tilldelning är redo och kan tilldelas vi
 }
 
 ```
-### Värden
+### Assignment reply
 
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| assignmentRows| array | x | Raderna som har hanterats |
-| assignmentRows.user| object | x | Användaren som har fått en licens |
-| assignmentRows.user.identitySource| string | x | Källan för användarens id |
-| assignmentRows.user.id| string | x | Användarens id |
-| assignmentRows.licenseKey| string | x | Licensnyckeln som har tilldelats|
-| assignmentRows.status| string | x | beingProcessed, assigned eller failed |
-| assignmentRows.productUrl| string | x | Den länk som kan användas av användaren för att ta del av resursen |
-| assignmentRows.errorMessage| string | | Eventuellt felmeddelande ifall tjänsteleverantören svarar med failed |
+| clientId | string | x | Client id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, e.g. nok.se |
+| assignmentRows| array | x | Row array |
+| assignmentRows.user| object | x | User that was assigned a license |
+| assignmentRows.user.identitySource| string | x | Source of the user ID |
+| assignmentRows.user.id| string | x | User ID |
+| assignmentRows.licenseKey| string | x | License key that was assigned |
+| assignmentRows.status| string | x | beingProcessed, assigned or failed |
+| assignmentRows.productUrl| string | x | The link that can be used to access the resource |
+| assignmentRows.errorMessage| string |  | Additional description of the failed assignment |
 
-### Värdelistor från tilldelningssvaret
+### Value list assignment reply
 
-| Status | Förklaring |
+| Status | Description |
 | --- | --- |
-| beingProcessed | Tilldelningen hanteras av tjänsteleverantören. Om tjänsteleverantören svarar med den här statusen förväntar sig klienten att få ett nytt anrop till replyToUrl vid ett senare tillfälle. |
-| assigned | Tilldelningen är klar och tjänsten är redo att användas |
-| failed | Tilldelningen har inte gått igenom. Tjänsteleverantören kan skicka med mer detaljerad information i errorMessage |
-## Exempelfiler
+| beingProcessed | Assignment is being processed by the supplier. Mandatory for another reply to be sent at a later time. |
+| assigned | Assignment is done and the service is ready to be used |
+| failed | Assignment failed. More detaield information can be found in errorMessage |
 
-### Tilldelning 1 Anrop.js
+## Sample files
 
-Enkel tilldelning utan grupptillhörighet. Tilldelning lyckas enligt svaret (Tilldelning 1 Svar.js).
+### Assignment 1 (Tilldelning 1 Anrop.js)
 
-### Tilldelning 2 Anrop.js
+Simple assignment without group property. Assignment is successful according to the reply (Tilldelning 1 Svar.js).
 
-Tilldelning med hänvisning till en grupp. Tilldelningen misslyckades (Tilldelning 2 Svar.js). 
+### Assignment 2 (Tilldelning 2 Anrop.js)
 
-# 3. Statistik
+Assignment using group property. Assignment failed (Tilldelning 2 Svar.js). 
 
-Metod 1 levererar information om tilldelning och användning ner på individnivå och är därför att föredra. Metod 2 aggregerar data och kan användas som ett alternativ under tiden tills tjänsteleverantörer får klart API för metod 1.
+# 3. Statistics
 
-## Metod 1
+Method 1 delivers information about assignment and use of licenses down to an individual level and is the preferred way. Method 2 aggregates data and can be used as an easier alternative to get started for the supplier, but the goal should be to implement Method 1.
 
-### Anrop
+## Method 1
+
+### Call from license management system
 
 ```javascript
 {
@@ -301,22 +303,23 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 	}
 }
 ```
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| articleNumber | string | | Klienten kan skicka med ett artikelnummer för att enbart få ut statusen för just den produkten |
-| user | object | | Klienten kan skicka med en användare för att enbart få ut statusen för just den användaren |
-| user.identitySource| string | x | Källan för användarens id |
-| user.id| string | x | Användarens id |
-| account | object | x | Beställande organisationen, oftast en skolenhet |
-| account.id | string | x | Den beställande organisationens id hos klienten, t.ex. ett kundnummer |
-| account.identitySource | string | x | Anger vilket typ av id det är som kommer. Om det t.ex. är klientens kundnummer så kan värdet vara client |
-| account.schoolUnitCode | string | x | Skolenhetskod om det är en skolenhet som beställer |
-| account.OrganizationNumber | string | x | Organisationsnummer på beställaren |
-| account.name | string | x | Namnet på skolenheten |
+| clientId | string | x | Client id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, e.g. nok.se |
+| articleNumber | string |  | An article number can be specified to only get the information for that specific product |
+| user | object | | A user can be specified to only get information about the licenses tied to that specific user |
+| user.identitySource| string | x | Source of the user ID |
+| user.id| string | x | User id |
+| account | object | x | Principal organization, commonly a school unit |
+| account.id | string | x | Customer ID, e.g. account number |
+| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
+| account.schoolUnitCode | string |  | School unit code |
+| account.organizationNumber | string | x | Organization number |
+| account.name | string | x | Name of the school unit |
 
-### Svar
+
+### Reply
 
 ```javascript
 {
@@ -342,27 +345,27 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
     }]
 }
 ```
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| assignedLicenses | array | x | De licenser som är tilldelade |
-| assignedLicenses.user | object | x | Den användaren som har tilldelats licenser |
-| assignedLicenses.user.identitySource| string | x | Användarens identity provider |
-| assignedLicenses.user.id| string | x | Användarens id |
-| assignedLicenses.licenseKey | object | x | Licensnyckeln som är tilldelad |
-| assignedLicenses.productUrl | string |  | URL till produkten |
-| assignedLicenses.used | boolean | x | True om användaren har börjat använda tjänsten |
-| assignedLicenses.validFrom | date | | När licensen började gälla |
-| assignedLicenses.validTo | date | | Hur länge licensen gäller |
-| unassignedLicenses | array | | De licenser som inte har tilldelats ännu |
-| unassignedLicenses.articleNumber | string | x | Artikelnummer på tjänsten |
-| unassignedLicenses.quantity | string | x | Hur många som är otilldelade |
-| unassignedLicenses.licenseKeys | array | x | De nycklar som är otilldelade |
+| clientId | string | x | Client id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, e.g. nok.se |
+| assignedLicenses | array | x | Licenses that have been assigned |
+| assignedLicenses.user | object | x | The user that has been assigned licenses |
+| assignedLicenses.user.identitySource| string | x | Source of the user ID |
+| assignedLicenses.user.id| string | x | User id |
+| assignedLicenses.licenseKey | object | x | License key that have been assigned |
+| assignedLicenses.productUrl | string |  | URL to the product |
+| assignedLicenses.used | boolean | x | true if product is in use |
+| assignedLicenses.validFrom | date |  | When the license was activated |
+| assignedLicenses.validTo | date |  | End date of the license period |
+| unassignedLicenses | array |  | License available for assignment |
+| unassignedLicenses.articleNumber | string | x | Article number |
+| unassignedLicenses.quantity | string | x | Number of unassigned licenses |
+| unassignedLicenses.licenseKeys | array | x | License keys that can be assigned |
 
-## Metod 2
+## Method 2
 
-### Anrop
+### Call
 
 ```javascript
 {
@@ -372,15 +375,15 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 	schoolUnitCodes: [""]
 }
 ```
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| organizationNumbers | array | * | Organisationsnummer på de enheter som klienten vill ha status på |
-| schoolUnitCodes | array | * | Skolenhetskoder på de enheter som klienten vill ha status på |
-\* Antingen organisationsnummer eller skolenhetskoder måste skickas med
+| clientId | string | x | Client id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, e.g. nok.se |
+| organizationNumbers | array | * | Organisation number of the units that the license portal requests an update to |
+| schoolUnitCodes | array | * | School unit codes of the units that the license portal requests an update to |
+\* Either organisation number or school unit code needs to be specified in the call.
 
-### Svar
+### Reply
 
 ```javascript
 {
@@ -405,42 +408,42 @@ Metod 1 levererar information om tilldelning och användning ner på individniv�
 	}]
 }
 ```
-| Egenskap | Typ | Obligatorisk | Förklaring |
+| Property | Type | Mandatory | Description |
 | --- | --- | --- | --- |
-| clientId | string | x | Klientens id, t.ex. goteborgsregionen.se |
-| serviceProviderId | string | x | Tjänsteleverantörs id, t.ex. nok.se |
-| schoolUnits | array | x | De skolenheter som klienten har begärt |
-| schoolUnits.schoolUnitCode | string | * | Skolenhetskoden |
-| schoolUnits.organizationNumber | string | * | Organisationsnumret |
-| schoolUnits.licenses | array | x | Skolenhetens licenser |
-| schoolUnits.licenses.articleNumber | string | x | Artikelnummer på tjänsten  |
-| schoolUnits.licenses.productUrl | string | | Länk till tjänsten |
-| schoolUnits.licenses.ordered | date | | När tjänsten beställdes  |
-| schoolUnits.licenses.validFrom | date | | När den började gälla  |
-| schoolUnits.licenses.validTo | date | | När den slutar gälla |
-| schoolUnits.licenses.totalLicenses | number | x | Hur många som beställdes |
-| schoolUnits.licenses.unassignedLicenses | number | x | Hur många som är otilldelade |
-| schoolUnits.licenses.assignedLicenses | number | x | Hur många som är tilldelade |
-| schoolUnits.licenses.usedLicenses | number | | Hur många som har använts |
-| schoolUnits.licenses.referenceName | string | | Den som beställer licensen |
-\* Antingen organisationsnummer eller skolenhetskod måste skickas med
+| clientId | string | x | Client id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, e.g. nok.se |
+| schoolUnits | array | x | The school unit codes that was requested |
+| schoolUnits.schoolUnitCode | string | * | School unit code |
+| schoolUnits.organizationNumber | string | * | Organisation number |
+| schoolUnits.licenses | array | x | Array of license information |
+| schoolUnits.licenses.articleNumber | string | x | Article number  |
+| schoolUnits.licenses.productUrl | string | | Product link that can be used to access the product |
+| schoolUnits.licenses.ordered | date | | When the license was ordered  |
+| schoolUnits.licenses.validFrom | date | | When it was activated  |
+| schoolUnits.licenses.validTo | date | | When it runs out |
+| schoolUnits.licenses.totalLicenses | number | x | Number of licenses that have be acquired |
+| schoolUnits.licenses.unassignedLicenses | number | x | Number of licenses that have not been assigned yet |
+| schoolUnits.licenses.assignedLicenses | number | x | Number of licenses that have been assigned |
+| schoolUnits.licenses.usedLicenses | number | | Number of licenses that have been activated |
+| schoolUnits.licenses.referenceName | string | | Name of the person who acquired the licenses |
 
-## Exempelfiler
 
-### Statistik Metod 1 Anrop.js
+## Samples files
 
-Anrop för att hämta statistik gällande status på en viss licens på en viss skola. 
+### Statistics 1 (Statistik Metod 1 Anrop.js)
 
-### Statistik Metod 2
+Call for getting an update on a certain license on a certain school. 
 
-Hämtar licenser och deras status för antingen organisationsnummer (Statistik Metod 2 Anrop med organisationsnummer.js) eller skolenhetskod (Statistik Metod 2 Anrop med skolenhetskoder.js). 
+### Statistics 2 (Statistik Metod 2)
 
-# Datum
+Call for getting licenses and status update for either an entire organisation (Statistik Metod 2 Anrop med organisationsnummer.js) or school unit code (Statistik Metod 2 Anrop med skolenhetskoder.js). 
 
-Skickas i formatet ISO 8601 (YYYY-MM-DD) “2020-03-30”.
+# Dates
 
-# Metod och autentisering
+Should be formated according to ISO 8601 (YYYY-MM-DD) “2020-03-30”.
 
-Alla anrop sker med HTTP POST om inget annat anges.
+# Method and authentication
 
-Autentisering sker med fördel via ömsesidig TLS (ex. via Moa när detta är möjligt), men kan också ske via tokens (RFC 7519) eller API-nycklar i HTTP header.
+All calls are done with HTTP POST if nothing else is specified.
+
+Authentication is primarily done through mutual TLS (e.g. using Skolfederation Moa when possible), but can also be done via tokens (RFC 7519) or API keys in the HTTP header.
