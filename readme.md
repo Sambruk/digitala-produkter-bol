@@ -445,4 +445,6 @@ Should be formated according to ISO 8601 (YYYY-MM-DD) “2020-03-30”.
 
 All calls are done with HTTP POST if nothing else is specified.
 
+Only use 200 to respond when OK. Do not use any of the other 2xx HTTP status codes. 
+
 Authentication is primarily done through mutual TLS (e.g. using Skolfederation Moa when possible), but can also be done via tokens (RFC 7519) or API keys in the HTTP header.
