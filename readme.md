@@ -5,7 +5,6 @@
 ##  Background  
 The taskforce "Beställning och Leverans" was given the assignment of developing a series of APIs that enables webshop and producers of digital educational resources to exchange data, and simplify the administration of licenses after the purchase of said licenses.
 
-The first version consists of three APIs: Order, Assignment and Statistics.
 
 FYI: Some terms have the Swedish name in parenthesis and the file names of the sample files are still in Swedish. 
 
@@ -140,7 +139,7 @@ During asynchronous  replies only order lines that have been updated should be s
 | orderRows.deliveryDate | string | | Used with status backordered |
 | orderRows.licenseKeys | array | * | License keys that can be used when assigning. An array of strings. Number of licenses should be the same as the number of copies ordered |
 
-\* = license keys are mandatory when the status is delivered and notifyUser is set to false false.
+\* = license keys are mandatory when the status is delivered and notifyUser is set to false.
 ### Value list order reply
 | Status | Description |
 | --- | --- |
