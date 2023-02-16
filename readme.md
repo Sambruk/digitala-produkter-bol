@@ -420,7 +420,7 @@ Method 1 delivers information about assignment and use of licenses down to an in
 | schoolUnits.licenses.ordered | date | | When the license was ordered  |
 | schoolUnits.licenses.validFrom | date | | When it was activated  |
 | schoolUnits.licenses.validTo | date | | When it runs out |
-| schoolUnits.licenses.totalLicenses | number | x | Number of licenses that have be acquired |
+| schoolUnits.licenses.totalLicenses | number | x | Number of licenses that have been acquired |
 | schoolUnits.licenses.unassignedLicenses | number | x | Number of licenses that have not been assigned yet |
 | schoolUnits.licenses.assignedLicenses | number | x | Number of licenses that have been assigned |
 | schoolUnits.licenses.usedLicenses | number | | Number of licenses that have been activated |
