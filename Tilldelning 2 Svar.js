@@ -10,7 +10,7 @@
 
 		licenseKey:"9789140123456",
 		status:"failed",
-		productUrl:"gleerupsportal.se/9789140123456",
+		productUrl:"https://gleerupsportal.se/laromedel/biologi-7-9/start",
 		errorMessage:"Gruppen finns inte."
 	}]
 }
