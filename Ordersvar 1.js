@@ -10,7 +10,7 @@
 		unitPrice: 499,
 		disountPercent:0,
 		vatPercent:6,
-		status:"beingProcessed",
+		status:"backordered",
 		errroMessage: "",
 		deliveryDate: "2020-08-15",
 		licenseKeys:["SDLKA-482df-sdf65"]
