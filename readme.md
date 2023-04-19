@@ -130,7 +130,7 @@ During asynchronous  replies only order lines that have been updated should be s
 | orderRows | array | x | The articles have been ordered |
 | orderRows.orderRowId | string | x | Row ID, used to match order replys with the order |
 | orderRows.articleNumber | string | x | Article number of the product being ordered |
-| orderRows.quantity | number | x | Number of copies accepted |
+| orderRows.quantity | number | x | How many to buy. For verification, should be the same as in the order call. |
 | orderRows.unitPrice | number | | Net list price |
 | orderRows.discountPercent | number | | Discount percent |
 | orderRows.vatPercent | number | | VAT percent |
