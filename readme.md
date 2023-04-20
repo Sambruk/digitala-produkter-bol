@@ -20,6 +20,14 @@ Samples files are available via GitHub together with the most up to date informa
 
 ## Call from webshop
 
+The producer of the digital educational resource provides a REST endpoint with the following naming convention:
+
+```
+POST ~/orders/v{spec-version}
+```
+\* e.g. https://bol.example.se/orders/v1
+
+
 ```javascript
 {
 	clientId: "",
@@ -162,6 +170,13 @@ Orderreply (Ordersvar 2.js) shows that assignment is possible and can be done th
 
 # 2. Assignment
 
+The producer of the digital educational resource provides a REST endpoint with the following naming convention:
+
+```
+POST ~/assignments/v{spec-version}
+```
+\* e.g. https://bol.example.se/assignments/v1
+
 ## Call from license management system
 
 ```javascript
@@ -275,6 +290,14 @@ Simple assignment without group property. Assignment is successful according to 
 Assignment using group property. Assignment failed (Tilldelning 2 Svar.js). 
 
 # 3. Statistics
+
+The producer of the digital educational resource provides a REST endpoint with the following naming convention:
+
+```
+POST ~/statistics/v{spec-version}
+```
+\* e.g. https://bol.example.se/statistics/v1
+
 
 Method 1 delivers information about assignment and use of licenses down to an individual level and is the preferred way. Method 2 aggregates data and can be used as an easier alternative to get started for the supplier, but the goal should be to implement Method 1.
 
