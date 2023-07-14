@@ -14,7 +14,7 @@ FYI: Some terms have the Swedish name in parenthesis and the file names of the s
 
 **[3. Statistics](#3-statistics)**: A license portal can fetch data from the producers and present the customer with how many licenses that have been acquired and how many that are actually being used. The data includes information on when the licenses were purchased and when they expire.
 
-**[4. Returns](#3-returns)**: Returns from the reseller's customers to the reseller. The licenses is stored in the reseller's digital warehouse that is provided by the supplier.
+**[4. Return](#3-return)**: Returns from the reseller's customers to the reseller. The licenses is stored in the reseller's digital warehouse that is provided by the supplier.
 
 Samples files are available via GitHub together with the most up to date information.
 
@@ -439,7 +439,7 @@ Call for getting an update on a certain license on a certain school.
 
 Call for getting licenses and status update for either an entire organisation (Statistik Metod 2 Anrop med organisationsnummer.js) or school unit code (Statistik Metod 2 Anrop med skolenhetskoder.js). 
 
-# 1. Return
+# 4. Return
 
 This call is made when a reseller's customer wants to create a return and the reseller has the ambition to sell the license to another customer. The license is stored in a 'digital warehouse' provided by the supplier.
 
