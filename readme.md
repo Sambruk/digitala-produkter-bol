@@ -14,6 +14,8 @@ FYI: Some terms have the Swedish name in parenthesis and the file names of the s
 
 **[3. Statistics](#3-statistics)**: A license portal can fetch data from the producers and present the customer with how many licenses that have been acquired and how many that are actually being used. The data includes information on when the licenses were purchased and when they expire.
 
+**[4. Returns](#3-returns)**: Returns from the reseller's customers to the reseller. The licenses is stored in the reseller's digital warehouse that is provided by the supplier.
+
 Samples files are available via GitHub together with the most up to date information.
 
 # 1. Order
@@ -436,6 +438,122 @@ Call for getting an update on a certain license on a certain school.
 ### Statistics 2 (Statistik Metod 2)
 
 Call for getting licenses and status update for either an entire organisation (Statistik Metod 2 Anrop med organisationsnummer.js) or school unit code (Statistik Metod 2 Anrop med skolenhetskoder.js). 
+
+# 1. Return
+
+This call is made when a reseller's customer wants to create a return and the reseller has the ambition to sell the license to another customer. The license is stored in a 'digital warehouse' provided by the supplier.
+
+## Call from webshop
+
+```javascript
+{
+    clientId: "goteborgsregionen.se",
+    serviceProviderId: "gleerups.se"
+
+    account: {
+            id: "GRAB",
+			identitySource: "client",
+			schoolUnitCode: "456781",
+            organizationNumber: "2120001355",
+            name: "Göteborgs stad",
+            rules: ["unassigned", "notUsed"]
+    },
+
+    rows: [{
+        quantity: 2,
+		licenseKeys: ["235572d0-a26d-4975-97f4-72e4734ff341", "61893cba-5572-458b-ba91-53320be8bb44"],
+        articleNumber: "9789140123456",
+	    orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc"
+    }]
+
+}
+```
+
+| Property | Type | Mandatory | Description |
+| --- | --- | --- | --- |
+| clientId | string | x | Webshop id, E.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, E.g. nok.se |
+| account | object | x | Principal organization, commonly a school unit |
+| account.id | string | x | Customer ID, e.g. account number |
+| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
+| account.schoolUnitCode | string |  | School unit code |
+| account.organizationNumber | string | x | Organization number |
+| account.name | string | x | Name of the school unit |
+| account.rules | array | | Return rules determined by the reseller and verified by the supplier |
+| rows | array | x| Return rules determined by the reseller and verified by the supplier |
+| rows.quantity | int | x | Return quantity. Either licensekeys or quantity has to be specified. |
+| rows.licenseKeys | array | x | Array of licensekeys that is being return. Either licensekeys or quantity has to be specified. |
+| rows.articleNumber | string | x | Article number of the product being returned |
+| rows.orderRowId | number | x | Row ID, used to match return replys with the response|
+
+
+### Value list for Return - identitySource
+| identitySource | Description |
+| --- | --- |
+| client | Webshop prorietary id |
+| EGIL | EGIL-client id |
+| Google | Google-id |
+| Microsoft | Microsoft-id |
+
+### Value list for Return - rules
+| rules | Description |
+| --- | --- |
+| unAssigned | Return allowed only on licenses that are not assigned |
+| notUsed | Return allowed only if the license has not been used |
+
+## Return reply
+
+The supplier is expected to reply directly. A return row is either a success or not. Partially succeded rows are not allowed, i.e. if any license on a row does not go well, no licenses on that row is not returned even if possible. The reseller can however se the status of each license to determine which one needs to be changed. For instance if there is a rule that says a license must be unassigned, the reseller can help their customer unassigned it and later retry the return. 
+
+```javascript
+{
+	clientId:"gleerups.se",
+	serviceProviderId:"goteborgsregionen.se",
+		
+	licenses: [{
+		orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc",
+		articleNumber: "9789140123456",
+		status: "Ok",
+		reason: "",
+		licenseKey:"235572d0-a26d-4975-97f4-72e4734ff341",
+		brokenRules:[]dvs.
+	},{
+		orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc",
+		articleNumber: "9789140123456",
+		status: "NotOk",
+		reason: "Returns not allowed after 6 months.",
+		licenseKey:"61893cba-5572-458b-ba91-53320be8bb44",
+		brokenRules:["unassigned"]
+	}]
+}
+
+```
+
+| Property | Type | Mandatory | Description |
+| --- | --- | --- | --- |
+| clientId | string | x | Webshop id, e.g. goteborgsregionen.se |
+| serviceProviderId | string | x | Supplier id, t.ex. nok.se |
+| licenses | array | x | One response per license |
+| licenses.orderRowId | string | x | Row ID, used to match return replys with the response |
+| licenses.articleNumber | string | x | Article number of the product being returned |
+| licenses.status | string | x | error, ok, rulesBroken. See value list below |
+| licenses.reason | string | | Used with status NotOk |
+| licenses.licenseKey | string | | Licensekey |
+| brokenRule.brokenRules | array | | Array with strings. Can be the same or a subset of the rules sent in the return call. See value list above |
+
+### Value list return reply
+| Status | Description |
+| --- | --- |
+| NotOk | The supplier does not accept this return, description of the reason is provided in reason. |
+| Ok | This license can be returned. |
+| RulesBroken | The license is NOT returned because there are one or more rules broken.  |
+| Returned | This license is returned. |
+
+## Sample files
+
+### Return.js
+Sample file shows a return that has two licenseKeys that the customer wants to return. The supplier validates the return by its own rules and those provided by the reseller.
+Return reply (Return Response.js) shows that one license in Ok to return, but is not because the second row has two validation errors. One is the reseller rule is broken and the second is a supplier rule i broken.
 
 # Dates
 
