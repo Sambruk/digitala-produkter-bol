@@ -14,7 +14,7 @@ FYI: Some terms have the Swedish name in parenthesis and the file names of the s
 
 **[3. Statistics](#3-statistics)**: A license portal can fetch data from the producers and present the customer with how many licenses that have been acquired and how many that are actually being used. The data includes information on when the licenses were purchased and when they expire.
 
-**[4. Return](#3-return)**: Returns from the reseller's customers to the reseller. The licenses is stored in the reseller's digital warehouse that is provided by the supplier.
+**[4. Return](#4-return)**: Returns from the reseller's customers to the reseller. The licenses is stored in the reseller's digital warehouse that is provided by the supplier.
 
 Samples files are available via GitHub together with the most up to date information.
 
@@ -480,11 +480,11 @@ This call is made when a reseller's customer wants to create a return and the re
 | account.organizationNumber | string | x | Organization number |
 | account.name | string | x | Name of the school unit |
 | account.rules | array | | Return rules determined by the reseller and verified by the supplier |
-| rows | array | x| Return rules determined by the reseller and verified by the supplier |
+| rows | array | x | Rows that is going to be returned. A row represent a whole or a subset of a purchase row. |
 | rows.quantity | int | x | Return quantity. Either licensekeys or quantity has to be specified. |
 | rows.licenseKeys | array | x | Array of licensekeys that is being return. Either licensekeys or quantity has to be specified. |
 | rows.articleNumber | string | x | Article number of the product being returned |
-| rows.orderRowId | number | x | Row ID, used to match return replys with the response|
+| rows.orderRowId | number | x | Row ID, that is used in the purchase call, is used to match return replys with the response|
 
 
 ### Value list for Return - identitySource
@@ -498,7 +498,7 @@ This call is made when a reseller's customer wants to create a return and the re
 ### Value list for Return - rules
 | rules | Description |
 | --- | --- |
-| unAssigned | Return allowed only on licenses that are not assigned |
+| notAssigned | Return allowed only on licenses that are not assigned |
 | notUsed | Return allowed only if the license has not been used |
 
 ## Return reply
@@ -539,7 +539,7 @@ The supplier is expected to reply directly. A return row is either a success or 
 | licenses.status | string | x | error, ok, rulesBroken. See value list below |
 | licenses.reason | string | | Used with status NotOk |
 | licenses.licenseKey | string | | Licensekey |
-| brokenRule.brokenRules | array | | Array with strings. Can be the same or a subset of the rules sent in the return call. See value list above |
+| licenses.brokenRules | array | | Array with strings. Can be the same or a subset of the rules sent in the return call. See value list above |
 
 ### Value list return reply
 | Status | Description |
