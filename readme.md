@@ -516,7 +516,7 @@ The supplier is expected to reply directly. A return row is either a success or 
 		status: "Ok",
 		reason: "",
 		licenseKey:"235572d0-a26d-4975-97f4-72e4734ff341",
-		brokenRules:[]dvs.
+		brokenRules:[]
 	},{
 		orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc",
 		articleNumber: "9789140123456",
