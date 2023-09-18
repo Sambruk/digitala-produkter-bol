@@ -359,7 +359,7 @@ Method 1 delivers information about assignment and use of licenses down to an in
 | assignedLicenses.validTo | date |  | End date of the license period |
 | unassignedLicenses | array |  | License available for assignment |
 | unassignedLicenses.articleNumber | string | x | Article number |
-| unassignedLicenses.quantity | string | x | Number of unassigned licenses |
+| unassignedLicenses.quantity | number | x | Number of unassigned licenses |
 | unassignedLicenses.licenseKeys | array | x | License keys that can be assigned |
 
 ## Method 2
