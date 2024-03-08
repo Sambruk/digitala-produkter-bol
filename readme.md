@@ -448,7 +448,7 @@ This call is made when a reseller's customer wants to create a return and the re
 ```javascript
 {
     clientId: "goteborgsregionen.se",
-    serviceProviderId: "gleerups.se"
+    serviceProviderId: "gleerups.se",
 
     account: {
             id: "GRAB",
@@ -460,7 +460,6 @@ This call is made when a reseller's customer wants to create a return and the re
     },
 
     rows: [{
-        quantity: 2,
 		licenseKeys: ["235572d0-a26d-4975-97f4-72e4734ff341", "61893cba-5572-458b-ba91-53320be8bb44"],
         articleNumber: "9789140123456",
 	    orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc"
@@ -481,7 +480,6 @@ This call is made when a reseller's customer wants to create a return and the re
 | account.name | string | x | Name of the school unit |
 | account.rules | array | | Return rules determined by the reseller and verified by the supplier |
 | rows | array | x | Rows that is going to be returned. A row represent a whole or a subset of a purchase row. |
-| rows.quantity | int | x | Return quantity. Either licensekeys or quantity has to be specified. |
 | rows.licenseKeys | array | x | Array of licensekeys that is being return. Either licensekeys or quantity has to be specified. |
 | rows.articleNumber | string | x | Article number of the product being returned |
 | rows.orderRowId | number | x | Row ID, that is used in the purchase call, is used to match return replys with the response|
@@ -500,6 +498,8 @@ This call is made when a reseller's customer wants to create a return and the re
 | --- | --- |
 | notAssigned | Return allowed only on licenses that are not assigned |
 | notUsed | Return allowed only if the license has not been used |
+| expired | Return allowed only if the license has not been expired |
+
 
 ## Return reply
 
@@ -510,21 +510,37 @@ The supplier is expected to reply directly. A return row is either a success or 
 	clientId:"gleerups.se",
 	serviceProviderId:"goteborgsregionen.se",
 		
-	licenses: [{
-		orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc",
-		articleNumber: "9789140123456",
-		status: "Ok",
-		reason: "",
-		licenseKey:"235572d0-a26d-4975-97f4-72e4734ff341",
-		brokenRules:[]
-	},{
-		orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc",
-		articleNumber: "9789140123456",
-		status: "NotOk",
-		reason: "Returns not allowed after 6 months.",
-		licenseKey:"61893cba-5572-458b-ba91-53320be8bb44",
-		brokenRules:["unassigned"]
-	}]
+	rows: [{
+        licenseKeys: [
+        		{
+					key: "61893cba-5572-458b-ba91-53320be8bb44",
+	        		status: "Ok"
+	        	}
+	        	{
+					key: "235572d0-a26d-4975-97f4-72e4734ff341",
+	        		status: "rulesBroken",
+					brokenRules: [
+						{
+							rule: "notAssigned",
+							userId: xxxxx@xxxx.xxx
+						},
+						{
+							rule: "notUsed",
+							date: "YYYY-MM-DD TT:MM:SS"
+						},
+						{
+							rule: "expired",
+							date: "YYYY-MM-DD TT:MM:SS"
+						}]
+	        	},
+	        	"27f03df5-5495-4a3b-a775-1ac1578ac368" : {
+	        		status: "NotOk",
+					reason: "Some other reason",
+	        	}, 
+        	],
+        articleNumber: "9789140123456",
+	    orderRowId: "64b879b1-1fdc-4a42-ae7c-b4f9b287a2cc"
+    }]
 }
 
 ```
@@ -533,21 +549,27 @@ The supplier is expected to reply directly. A return row is either a success or 
 | --- | --- | --- | --- |
 | clientId | string | x | Webshop id, e.g. goteborgsregionen.se |
 | serviceProviderId | string | x | Supplier id, t.ex. nok.se |
-| licenses | array | x | One response per license |
-| licenses.orderRowId | string | x | Row ID, used to match return replys with the response |
-| licenses.articleNumber | string | x | Article number of the product being returned |
-| licenses.status | string | x | error, ok, rulesBroken. See value list below |
-| licenses.reason | string | | Used with status NotOk |
-| licenses.licenseKey | string | | Licensekey |
-| licenses.brokenRules | array | | Array with strings. Can be the same or a subset of the rules sent in the return call. See value list above |
+| rows | array | x | Answer with the same rows and licenses as the call |
+| rows.orderRowId | string | x | Row ID, used to match return replys with the response |
+| rows.articleNumber | string | x | Article number of the product being returned |
+| rows.licenseKeys | array | x | Array of the license keys that were in the call|
+| rows.licenseKeys.key | string | x | License key |
+| rows.licenseKeys.status | string | x | error, ok, rulesBroken. See value list below |
+| rows.licenseKeys.reason | string | | Used with status NotOk |
+| rows.licenseKeys.brokenRules | array | | Array with objects of broken rules and can contain more info depending on the rule broken. Can be the same or a subset of the rules sent in the return call. See value list above |
+| rows.licenseKeys.rule | string | x | The broken rule |
+| rows.licenseKeys.userId | string | x | Is mandatory for rule 'notAssigned', id for the user using the key |
+| rows.licenseKeys.date | date | x | Is mandatory for rule 'notUsed', start date of using the article. Is also mandatory for expired, date of when the article was expired.|
+
+
+
 
 ### Value list return reply
 | Status | Description |
 | --- | --- |
 | NotOk | The supplier does not accept this return, description of the reason is provided in reason. |
-| Ok | This license can be returned. |
+| Ok | This license is returned. |
 | RulesBroken | The license is NOT returned because there are one or more rules broken.  |
-| Returned | This license is returned. |
 
 ## Sample files
 
