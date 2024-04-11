@@ -42,6 +42,10 @@ Samples files are available via GitHub together with the most up to date informa
 		schoolUnitCode: "",
 		organizationNumber: "",
 		name: "",
+		address: "",
+		postalCode: "",
+		city: "",
+		country: ""
 	},
 
 	orderRows: [{
@@ -49,6 +53,8 @@ Samples files are available via GitHub together with the most up to date informa
 		articleNumber: "",
 		quantity: 1,
 		fromDate:"",
+		duration: 12,
+		durationUnit: "M",
 		discountPercent:"",
 		discountCode:"",
 		EndCustomerOrderNumber:"",
@@ -76,11 +82,17 @@ Samples files are available via GitHub together with the most up to date informa
 | account.schoolUnitCode | string |  | School unit code |
 | account.organizationNumber | string | x | Organization number |
 | account.name | string | x | Name of the school unit |
+| account.address | string | | Street address |
+| account.postalCode | string | | Postal code |
+| account.city | string | | City |
+| account.country | string | | Country code (ISO 3166) |
 | orderRows | array | x| The articles that are being ordered |
 | orderRows.orderRowId | string | x | Row ID, used to match order replys with the order |
 | orderRows.articleNumber | string | x | Article number of the product being ordered |
 | orderRows.quantity | number | x | Number of copies being ordered |
 | orderRows.fromDate | date | | The date when the order should become active. Can be used if the license is activated at purchase. If supported, the supplier can reply with "backordered" and the date. If not supported the supplier should reply with "canceled" |
+| orderRows.duration | number | | Quantity of license duration (integer). Should only be included if the article has multiple durations, but uses the same articleNumber. |
+| orderRows.durationUnit | string | | Unit of license duration according to ISO-8601: D (Days), W (Weeks), M (Months), Y (Years). Should only be included if the article has multiple durations, but uses the same articleNumber. |
 | orderRows.discountPercent | number |  | Deviating discount for this particular orderrow. Should be followed by a discount code |
 | orderRows.discountCode | string |  | Code that explains the deviating discount on the row above. Can be used for campaigns or offers targeting a specific customer |
 | orderRows.endCustomerOrderNumber | string |  | Customer order number. Can be used to pass along the customer order number or some other reference that could be useful to the supplier |
