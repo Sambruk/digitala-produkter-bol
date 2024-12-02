@@ -13,9 +13,9 @@
   "paths": {
     "/v1/orders/create": {
       "post": {
-        "tags": ["BOL 1.0"],
+        "tags": [ "BOL 1.0" ],
         "summary": "Create Order",
-        "description": "Used by the client to place an order at the service provider. The service provider is expected to reply directly. For backorders the service provider can make an asynchronous call to the URL specified in replyToUrl segment. Both scenarios expect to receive the same JSON. During asynchronous replies only order lines that have been updated should be sent. The status 'delivered' is final and can not be updated. If a service provider needs more time to process the order than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the order was delivered, backordered or canceled. * If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the order.",
+        "description": "Used by the client to place an order at the service provider. The service provider is expected to reply directly. For backorders the service provider can make an asynchronous call to the URL specified in replyToUrl segment. Both scenarios expect to receive the same JSON. During asynchronous replies only order lines that have been updated should be sent. The status 'delivered' is final and can not be updated. If a service provider needs more time to process the order than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the order was delivered, backordered or if the order processing failed. * If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the order.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -373,7 +373,7 @@
                   "type": "string",
                   "nullable": true,
                   "format": "date",
-                  "description": "Date when the license(s) will start to apply. Can be used if the license is not to take effect immediately upon ordering. If the service provider supports it, they must reply with backordered and send with the date in the backorder. If the service provider does not support it, they must respond with 'canceled'."
+                  "description": "Date when the license(s) will start to apply. Can be used if the license is not to take effect immediately upon ordering. If the service provider supports it, they must reply with backordered and send with the date in the backorder. If the service provider does not support it, they must respond with 'failed'."
                 },
                 "duration": {
                   "type": "number",
@@ -558,7 +558,7 @@
                 "errorMessage": {
                   "type": "string",
                   "nullable": true,
-                  "description": "Error message if canceled."
+                  "description": "Detailed information as to why order line has status 'failed'"
                 }
               }
             }
