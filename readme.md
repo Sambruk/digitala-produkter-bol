@@ -1,448 +1,264 @@
+# BOL 1.0
 
+## API for Order and Delivery (of digital educational resources)
 
-# API for Order and Delivery (of digital educational resources)
-
-##  Background  
-The taskforce "Beställning och Leverans" was given the assignment of developing a series of APIs that enables webshop and producers of digital educational resources to exchange data, and simplify the administration of licenses after the purchase of said licenses.
-
-
-FYI: Some terms have the Swedish name in parenthesis and the file names of the sample files are still in Swedish. 
-
-**[1. Order](#1-order)**: Used by the webshop to place an order with the producer for a specific customer.
-
-**[2. Assignment](#2-assignment)**: After the purchase has been completed, the customer can use a license administration portal to perform an assignment. The admin portal can either be a part of the webshop or completely separate entity. To perform an assignment the license portal simply sends the information required from the license portal to the producer regarding who should be given access to which licenses.
-
-**[3. Statistics](#3-statistics)**: A license portal can fetch data from the producers and present the customer with how many licenses that have been acquired and how many that are actually being used. The data includes information on when the licenses were purchased and when they expire.
-
-Samples files are available via GitHub together with the most up to date information.
-
-# 1. Order
-
-## Call from webshop
-
-```javascript
-{
-	clientId: "",
-	serviceProviderId : "",
-	siteId: "",
-	clientOrderNumber : "",
-	replyToUrl: "",
-	notifyReference: true,
-	deliveryLocation: "",
-	isPrivatePurchase: true,
-
-	reference: {
-		name: "",
-		email: "",
-	},
-
-	account: {
-		id: "",
-		identitySource: "",
-		schoolUnitCode: "",
-		organizationNumber: "",
-		name: "",
-	},
-
-	orderRows: [{
-		orderRowId: "",
-		articleNumber: "",
-		quantity: 1,
-		fromDate:"",
-		discountPercent:"",
-		discountCode:"",
-		EndCustomerOrderNumber:"",
-		articleCampaignPrice:""
-	}]
-}
-```
-
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Webshop id, E.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, E.g. nok.se |
-| siteId | integer |  | Id of a certain sub-section at the supplier |
-| clientOrderNumber | string | x | Customer order number |
-| replyToUrl | string | x | The URL to use if the supplier needs to perform additional order replies |
-| notifyReference | boolean |  | If the customer does not have a license management system this can be set to "true" and the delivery will go directly to the customers, if set to false the customer expects the license to be delivered to the license management system |
-| deliveryLocation | string | Name of the license management system |
-| isPrivatePurchase | boolean | | Set to true in case of a private individual and not a business transaction |
-| reference | object | | Name and e-mail to the customer. In case notifyReference is set to true this is the recipient of the license |
-| reference.name | string | | Customer name |
-| reference.email | string | | Customer e-mail |
-| account | object | x | Principal organization, commonly a school unit |
-| account.id | string | x | Customer ID, e.g. account number |
-| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
-| account.schoolUnitCode | string |  | School unit code |
-| account.organizationNumber | string | x | Organization number |
-| account.name | string | x | Name of the school unit |
-| orderRows | array | x| The articles that are being ordered |
-| orderRows.orderRowId | string | x | Row ID, used to match order replys with the order |
-| orderRows.articleNumber | string | x | Article number of the product being ordered |
-| orderRows.quantity | number | x | Number of copies being ordered |
-| orderRows.fromDate | date | | The date when the order should become active. Can be used if the license is activated at purchase. If supported, the supplier can reply with "backordered" and the date. If not supported the supplier should reply with "canceled" |
-| orderRows.discountPercent | number |  | Deviating discount for this particular orderrow. Should be followed by a discount code |
-| orderRows.discountCode | string |  | Code that explains the deviating discount on the row above. Can be used for campaigns or offers targeting a specific customer |
-| orderRows.endCustomerOrderNumber | string |  | Customer order number. Can be used to pass along the customer order number or some other reference that could be useful to the supplier |
-| orderRows.articleCampaignPrice | number |  | If the price deviates from the list price. Used with quotes or campigns. |
-
-### Value list for Order
-| identitySource | Description |
-| --- | --- |
-| client | Webshop prorietary id |
-| EGIL | EGIL-client id |
-| Google | Google-id |
-| Microsoft | Microsoft-id |
-
-## Order reply
-
-The supplier is expected to reply directly. For backorders the supplier can make an asynchronous call to the URL specified in replyToUrl segment. Both scenarios expect to receive the same JSON (see below). 
-
-During asynchronous  replies only order lines that have been updated should be sent. The status "Delivered" is final and can not be updated.
-
-```javascript
-{
-	serviceProviderId: "",
-	clientId: "",
-	clientOrderNumber: "",
-		
-	orderRows:[{
-		orderRowId:"",
-		articleNumber: "",
-		quantity:1,
-		unitPrice: "",
-		discountPercent:"",
-		vatPercent:"",
-		status:"",
-		errorMessage: "",
-		deliveryDate: "",
-		licenseKeys:[""]
-	}],
-}
-
-```
-
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Webshop id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, t.ex. nok.se |
-| clientOrderNumber | string | x | Customer order number. |
-| orderRows | array | x | The articles have been ordered |
-| orderRows.orderRowId | string | x | Row ID, used to match order replys with the order |
-| orderRows.articleNumber | string | x | Article number of the product being ordered |
-| orderRows.quantity | number | x | How many to buy. For verification, should be the same as in the order call. |
-| orderRows.unitPrice | number | | Net list price |
-| orderRows.discountPercent | number | | Discount percent |
-| orderRows.vatPercent | number | | VAT percent |
-| orderRows.status | string | x | beingProcessed, backordered, delivered or canceled. See value list below. |
-| orderRows.errorMessage | string | | Used with status canceled  |
-| orderRows.deliveryDate | string | | Used with status backordered |
-| orderRows.licenseKeys | array | * | License keys that can be used when assigning. An array of strings. Number of licenses should be the same as the number of copies ordered |
-
-\* = license keys are mandatory when the status is delivered and notifyUser is set to false.
-### Value list order reply
-| Status | Description |
-| --- | --- |
-| beingProcessed | The order is being handled by the supplier. Mandates a follow up call to the URL in replyToUrl. |
-| backordered | The supplier can send an expected delivery date in deliveryDate. Mandates a follow up call to the URL in replyToUrl. |
-| delivered | The order has been processed and the client expects to locate the license keys in the segment licenseKeys  |
-| canceled | The orderline has NOT been approved. The supplier can send more detailed information in errorMessage |
-
-## Sample files
-
-### Order 1.js
-An order for 1 copy that will be delivered to a private consumer that wants delivery in august. A prerequisite is that the supplier can handle "fromDate". The supplier should notify the customer when the order is activated.
-
-Order reply (Ordersvar 1.js) shows the order being processed, which means it is pending approval. Expected deliver date is set to 2020-08-15 as requested.
-
-### Order 2.js
-An order containing two products with 18 copies each where assignment will be done through a license management portal and that the licenses should be delivered immediately. The delivery to the license management system is outside the scope of this work.  
-
-Orderreply (Ordersvar 2.js) shows that assignment is possible and can be done through the system. 
-
-# 2. Assignment
-
-## Call from license management system
-
-```javascript
-{
-	clientId:"",
-	serviceProviderId: "",
-	replyToUrl:"",
-	action: "",
-
-	account: {
-        identitySource: "",
-        id: "",
-        schoolUnitCode: "",
-        organizationNumber: "",
-        name: "",
-	},
-	
-	assignmentRows: [{
-		user: {
-			identitySource: "",
-			id: ""
-		},
-
-		licenseKey: "",
-		orderNumber: "",
-		assignedByGroups: [{
-			identitySource: "",
-			id: "",
-			groupName: ""
-		}]
-	}]
-}
-
-```
-
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Client id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, e.g. nok.se |
-| replyToUrl | string | x | The URL to use if the supplier needs to perform additional order replies |
-| action | string | x | Assign (tilldela) or Unassign (fråndela) |
-| account | object | x | Principal organization, commonly a school unit |
-| account.id | string | x | Customer ID, e.g. account number |
-| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
-| account.schoolUnitCode | string |  | School unit code |
-| account.organizationNumber | string | x | Organization number |
-| account.name | string | x | Name of the school unit |
-| assignmentRows| array | x | Array of assignments being made |
-| assignmentRows.user| object | x | The user that is being assigned a license |
-| assignmentRows.user.id| string | x | User ID |
-| assignmentRows.user.identitySource | string | x | Source of the ID |
-| assignmentRows.licenseKey| string | x | License key that was received during the order call |
-| assignmentRows.assignedByGroups| array |  | The groups that a used was assigned through. The assignment is individual, but group property can also be sent if the supplier wants to use that in their system |
-| assignmentRows.assignedByGroups.identitySource| string |  | Source of the group ID. |
-| assignmentRows.assignedByGroups.id| string | x | Group id |
-| assignmentRows.assignedByGroups.groupName| string | x | Group name |
-
-## Reply from supplier
-
-```javascript
-
-{
-	serviceProviderId:"",
-	clientId:"",
-	
-	assignmentRows: [{
-		user: {
-			identitySource: "",
-			id: ""
-    	},
-    
-		licenseKey:"",
-		status:"",
-		productUrl:"",
-		errorMessage:""
-	}]
-}
-
-```
-### Assignment reply
-
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Client id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, e.g. nok.se |
-| assignmentRows| array | x | Row array |
-| assignmentRows.user| object | x | User that was assigned a license |
-| assignmentRows.user.identitySource| string | x | Source of the user ID |
-| assignmentRows.user.id| string | x | User ID |
-| assignmentRows.licenseKey| string | x | License key that was assigned |
-| assignmentRows.status| string | x | beingProcessed, assigned or failed |
-| assignmentRows.productUrl| string | x | The link that can be used to access the resource |
-| assignmentRows.errorMessage| string |  | Additional description of the failed assignment |
-
-### Value list assignment reply
-
-| Status | Description |
-| --- | --- |
-| beingProcessed | Assignment is being processed by the supplier. Mandatory for another reply to be sent at a later time. |
-| assigned | Assignment is done and the service is ready to be used |
-| failed | Assignment failed. More detaield information can be found in errorMessage |
-
-## Sample files
-
-### Assignment 1 (Tilldelning 1 Anrop.js)
-
-Simple assignment without group property. Assignment is successful according to the reply (Tilldelning 1 Svar.js).
-
-### Assignment 2 (Tilldelning 2 Anrop.js)
-
-Assignment using group property. Assignment failed (Tilldelning 2 Svar.js). 
-
-# 3. Statistics
-
-Method 1 delivers information about assignment and use of licenses down to an individual level and is the preferred way. Method 2 aggregates data and can be used as an easier alternative to get started for the supplier, but the goal should be to implement Method 1.
-
-## Method 1
-
-### Call from license management system
-
-```javascript
-{
-    serviceProviderId:"",
-    clientId:"",
-	
-	articleNumber:"",
-	user: {
-        identitySource: "",
-        id: ""
-	},
-	
-    account: {
-		identitySource: "",
-        id: "",
-        schoolUnitCode: "",
-        organizationNumber: "",
-        name: "",
-	}
-}
-```
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Client id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, e.g. nok.se |
-| articleNumber | string |  | An article number can be specified to only get the information for that specific product |
-| user | object | | A user can be specified to only get information about the licenses tied to that specific user |
-| user.identitySource| string | x | Source of the user ID |
-| user.id| string | x | User id |
-| account | object | x | Principal organization, commonly a school unit |
-| account.id | string | x | Customer ID, e.g. account number |
-| account.identitySource | string | x | Type of id. E.g. if it is the account number of the customer it should be set to "client" |
-| account.schoolUnitCode | string |  | School unit code |
-| account.organizationNumber | string | x | Organization number |
-| account.name | string | x | Name of the school unit |
-
-
-### Reply
-
-```javascript
-{
-    serviceProviderId:"",
-    clientId:"",
-
-    assignedLicenses: [{
-        user: {
-            identitySource: "",
-            id: ""
-        },
-        licenseKey:"",
-	productUrl:"",
-        used:true,
-        validFrom:"",
-        validTo:""
-    }],
-
-    unassignedLicenses:[{
-        articleNumber:"",
-        quantity:10,
-        licenseKeys:["", ""]
-    }]
-}
-```
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Client id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, e.g. nok.se |
-| assignedLicenses | array | x | Licenses that have been assigned |
-| assignedLicenses.user | object | x | The user that has been assigned licenses |
-| assignedLicenses.user.identitySource| string | x | Source of the user ID |
-| assignedLicenses.user.id| string | x | User id |
-| assignedLicenses.licenseKey | object | x | License key that have been assigned |
-| assignedLicenses.productUrl | string |  | URL to the product |
-| assignedLicenses.used | boolean | x | true if product is in use |
-| assignedLicenses.validFrom | date |  | When the license was activated |
-| assignedLicenses.validTo | date |  | End date of the license period |
-| unassignedLicenses | array |  | License available for assignment |
-| unassignedLicenses.articleNumber | string | x | Article number |
-| unassignedLicenses.quantity | number | x | Number of unassigned licenses |
-| unassignedLicenses.licenseKeys | array | x | License keys that can be assigned |
-
-## Method 2
-
-### Call
-
-```javascript
-{
-	serviceProviderId: "",
-	clientId: "",
-	organizationNumbers: [""],
-	schoolUnitCodes: [""]
-}
-```
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Client id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, e.g. nok.se |
-| organizationNumbers | array | * | Organisation number of the units that the license portal requests an update to |
-| schoolUnitCodes | array | * | School unit codes of the units that the license portal requests an update to |
-\* Either organisation number or school unit code needs to be specified in the call.
-
-### Reply
-
-```javascript
-{
-	clientId:"",
-	serviceProviderId:"",
-
-	schoolUnits: [{
-		schoolUnitCode: "",
-		organizationNumber: "",
-		licenses: [{
-			articleNumber: "",
-			productUrl: "",
-			ordered: "",
-			validFrom: "",
-			validTo: "",
-			totalLicenses: 1,
-			unassignedLicenses: 0,
-			assignedLicenses: 1,
-			usedLicenses: 1,
-			referenceName: ""
-		}]
-	}]
-}
-```
-| Property | Type | Mandatory | Description |
-| --- | --- | --- | --- |
-| clientId | string | x | Client id, e.g. goteborgsregionen.se |
-| serviceProviderId | string | x | Supplier id, e.g. nok.se |
-| schoolUnits | array | x | The school unit codes that was requested |
-| schoolUnits.schoolUnitCode | string | * | School unit code |
-| schoolUnits.organizationNumber | string | * | Organisation number |
-| schoolUnits.licenses | array | x | Array of license information |
-| schoolUnits.licenses.articleNumber | string | x | Article number  |
-| schoolUnits.licenses.productUrl | string | | Product link that can be used to access the product |
-| schoolUnits.licenses.ordered | date | | When the license was ordered  |
-| schoolUnits.licenses.validFrom | date | | When it was activated  |
-| schoolUnits.licenses.validTo | date | | When it runs out |
-| schoolUnits.licenses.totalLicenses | number | x | Number of licenses that have been acquired |
-| schoolUnits.licenses.unassignedLicenses | number | x | Number of licenses that have not been assigned yet |
-| schoolUnits.licenses.assignedLicenses | number | x | Number of licenses that have been assigned |
-| schoolUnits.licenses.usedLicenses | number | | Number of licenses that have been activated |
-| schoolUnits.licenses.referenceName | string | | Name of the person who acquired the licenses |
-
-
-## Samples files
-
-### Statistics 1 (Statistik Metod 1 Anrop.js)
-
-Call for getting an update on a certain license on a certain school. 
-
-### Statistics 2 (Statistik Metod 2)
-
-Call for getting licenses and status update for either an entire organisation (Statistik Metod 2 Anrop med organisationsnummer.js) or school unit code (Statistik Metod 2 Anrop med skolenhetskoder.js). 
-
-# Dates
-
-Should be formated according to ISO 8601 (YYYY-MM-DD) “2020-03-30”.
-
-# Method and authentication
+[Background](#background)
+
+[Infrastructure](#infrastructure)
+
+[Order](#order)
+
+[Assign](#assign)
+
+[Endpoints](#endpoints)
+
+[Authentication](#authentication)
+
+[HTTP Request Methods](#http-request-methods)
+
+[HTTP Response Status Codes](#http-response-status-codes)
+
+[Successful responses](#successful-responses)
+
+[Error Responses](#error-responses)
+
+[Case descriptions](#case-descriptions)
+
+[Managing school unit groups](#managing-school-unit-groups)
+
+[Managing clientOrderLineId](#managing-clientorderlineid)
+
+[Two or more clients creating orders for the same customer](#two-or-more-clients-creating-orders-for-the-same-customer)
+
+[Service Provider that doesn't manage license keys](#service-provider-that-doesn't-manage-license-keys)
+
+[Order containing bundle articles](#order-containing-bundle-articles)
+
+[Data values](#data-values)
+
+[Date format](#date-format)
+
+[Code value lists](#code-value-lists)
+
+[Swagger specification](#swagger-specification)
+
+# Background
+
+The working group BOL, Beställa och Leverera (Order and Deliver) was given the assignment of developing an APIs that enables clients and service providers to exchange data to order and deliver digital educational resources.
+
+BOL enables a client to offer the customer a client account in a license portal where the customer gets an overview of and can administer their purchased digital educational resources.
+
+# Infrastructure
+
+![][image1]
+
+*Example of BOL as part of an infrastructure.*
+
+## Order
+
+To order digital educational resources. The client has to in another way know the article numbers of the service provider's articles. Bokinfo is one source of this.
+
+## Assign
+
+To assign licenses of educational resources to end users. Both the client and the service provider have to know the same unique user id, probably synced from another system.
+
+An assignment can be made by the client who placed the order or by the service provider. The client gets information about the assignments made by the service provider by calling endpoint /v1/school-units/users/licenses.
+
+# Endpoints
+
+| Endpoint | Method | Description | Mandatory |
+| :---- | :---- | :---- | :---: |
+| /v1/orders/create | POST | Used by the client to place an order at the service provider. | To order |
+| /v1/assignments/create | POST | Used by the client to do one or more assignments of a license to a user. A prerequisite is that the users have the same unique ID at the client as at the service provider. | To assign |
+| /v1/assignments/delete | POST | Used by the client to delete one or more assignments of a license to a user. A prerequisite is that the users have the same unique ID at the client as at the service provider. | No |
+| /v1/users/licenses | POST | Used by the client to get which licenses/articles are assigned to a specific user. A prerequisite is that the users have the same unique ID at the client as at the service provider. | No |
+| /v1/school-units/users/licenses | POST | Used by the client to get which licenses/articles are assigned to which users for a specific school unit. It also returns all unassigned licenses. A prerequisite is that the users have the same unique ID at the client as at the service provider. | To assign |
+| /v1/school-units/licenses | POST | Used by the client to get license status per article for specific school units. | No |
+
+# Authentication
+
+Authentication is primarily done through mutual TLS (e.g. using Skolfederation Moa when possible), but can also be done via tokens (RFC 7519\) or API keys in the HTTP header.
+
+# HTTP Request Methods
 
 All calls are done with HTTP POST if nothing else is specified.
 
-Authentication is primarily done through mutual TLS (e.g. using Skolfederation Moa when possible), but can also be done via tokens (RFC 7519) or API keys in the HTTP header.
+# HTTP Response Status Codes
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
+## Successful responses
+
+To respond to a request that is processed, always use HTTP Response Status Code 200 OK and use the field "status" and, if needed, "errorMessage" in the json response.
+
+## Error Responses
+
+Requests that can’t be processed for any reason should be handled via an applicable not-successful HTTP Status Code (anything outside of the 2XX range) together with an application/problem+json response message giving further details:  
+[https://www.rfc-editor.org/rfc/rfc9457.html](https://www.rfc-editor.org/rfc/rfc9457.html)
+
+### Examples of error responses:  **Received request was not valid:**
+
+HTTP/1.1 400 Bad Request  
+Content-Type: application/problem+json
+
+{  
+  "type": "https://tools.ietf.org/html/rfc7231\#section-6.5.8",  
+  "title": "Bad Request",  
+  "status": 400,  
+  "errors": {  
+    "orderLines": "Order lines must contain at least one item"  
+  }  
+}
+
+**Order with the same key has previously been created:**
+
+HTTP/1.1 409 Conflict  
+Content-Type: application/problem+json
+
+{  
+  "type": "https://tools.ietf.org/html/rfc7231\#section-6.5.1",  
+  "title": "Conflict",  
+  "status": 409,  
+  "detail": "Conflict: clientOrderNumber must have a unique value."  
+}
+
+**Something unexpected happened:**
+
+HTTP/1.1 500 Internal Server Error  
+Content-Type: application/problem+json
+
+{  
+  "type": "https://tools.ietf.org/html/rfc7231\#section-6.6.1",  
+  "title": "Internal Server Error",  
+  "status": 500,  
+  "detail": "Unknown error occurred."  
+}
+
+# Case descriptions
+
+## Managing school unit groups
+
+Service providers sometimes map data from one school (unit) to another usually to manage school unit groups.  
+If the service provider maps data to another school (unit), the service provider must save the original school id that the client sent on the submitted data in order to respond to the client with the original id in later requests and responses.
+
+## Managing clientOrderLineId
+
+The service provider must save the clientOrderLineId on the order line. clientOrderLineId is then used in later requests and responses.
+
+## Two or more clients creating orders for the same customer
+
+The service provider must be able to handle orders coming in from several clients. Each client can only assign the licenses that they themselves ordered. All licenses can be assigned by the service provider.
+
+## Service Provider that doesn't manage license keys
+
+If the service provider does not manage license keys, the article number is entered. As there may be several ordered articles with different license lengths, the client must also specify clientOrderLineId to point out the correct article to be used.
+
+## Order containing bundle articles
+
+When ordering an article that is a bundle containing several individual articles and the Service Provider cannot assign users to the bundle article directly, then the Service Provider returns one order line per included item (each referencing the same orderLineId) which is then used by the client to assign licenses.
+
+If bundles are "unpacked" (meaning that the items contained by the bundle are ordered individually) before ordering a bundle article, digital or hybrid \- then the containing bundle article can be referenced through the field "bundleArticleNumber".
+
+# Data values
+
+## Date format
+
+Date is sent in the format ISO 8601 (YYYY-MM-DD), e.g. "2022-01-03".
+
+## Code value lists
+
+Possible values ​​for data with type code are specified here. All values are non case sensitive.
+
+### buyer.type 
+
+Used in:
+
+* /v1/orders/create Request
+
+| Value | Description |
+| :---- | :---- |
+| organization | Buyer is an organization. |
+| private | Private buyer. |
+
+### buyer.receivingSchool.idSource
+
+Used in:
+
+* /v1/orders/create Request
+
+| Value | Description |
+| :---- | :---- |
+| skolverket | School unit code from Skolverket. |
+| client | Id specified by the client. |
+| serviceProvider | Id specified by the service provider. |
+| other | Value agreed by the client and the service provider. |
+
+### orderLines.status
+
+Used in:
+
+* /v1/orders/create Response  
+* /v1/orders/create Response to an asynchronous response
+
+| Value | Description |
+| :---- | :---- |
+| beingProcessed | The order is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time. Can be followed by backordered, delivered, failed |
+| backordered | Backordered, the service provider can send with an expected delivery date in deliveryDate. In the same way as in beingProcessed, the client expects to receive a call to responseUrl. Can be followed by delivered, failed |
+| delivered | The order is delivered and the retailer can find the license keys that can be used for the assignment in licenseKeys. |
+| failed | Failed, order has not gone through. The service provider can send more detailed information in the errorMessage. |
+
+### user.idSource
+
+Used in:
+
+* /v1/assignments/create Request  
+* /v1/assignments/create Response  
+* /v1/users/licenses
+
+| Value | Description |
+| :---- | :---- |
+| client | Id specified by the client. |
+| serviceProvider | Id specified by the service provider. |
+| eppn | eduPersonPrincipalName. |
+| egil | EGIL-klientens SCIM-id. |
+| ss12000 | SS12000 uuid. |
+| google | Google-id. |
+| microsoft | Microsoft-id. |
+| email | Email address. |
+| other | Other type of id. |
+
+### assignedByGroups.idSource
+
+Used in:
+
+* /v1/assignments/create Request
+
+| Value | Description |
+| :---- | :---- |
+| client | Id specified by the client. |
+| serviceProvider | Id specified by the service provider. |
+| egil | EGIL-klientens SCIM-id. |
+| ss12000 | SS12000 uuid. |
+| google | Google-id. |
+| microsoft | Microsoft-id. |
+| other | Other type of id. |
+
+### assignments.status
+
+Used in:
+
+* /v1/assignments/create Response  
+* /v1/assignments/delete Response
+
+| Value | Description |
+| :---- | :---- |
+| beingProcessed | The assignment is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time. |
+| assigned | The assignment is complete and the license is ready to use. |
+| unassigned | The unassignment request succeeded and the user no longer has the license. |
+| failed | The assignment or unassignment has not gone through. The service provider can send more detailed information in the errorMessage. |
+
+# Swagger specification
+
+[BOL 1.0 OpenAPI 3.0.1 specification](BOLv1.0_openapi301.json)
+
+[image1]: <data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAloAAAFZCAIAAADPRRaOAABSrUlEQVR4Xu2df2wc5Z3//T+RUP44IVWKqiooqgp3B03Vil5QSiKgVxCpiu5gkmMvqSHUDWyTfMOPbYoJxcnVzeFGxI0wIWx6cdSEHnGUGPCSglMwvdQQloBDYgNxCCb2bWJbRfJxZ1na7/M8n5nPPvPMzuyMvev94fdLKMx8nmd+7Hj2ee3zzDPPU5cFAAAA5jx1ZgAAAACYe0CHoOScOHHCAmC6PPjggxcuXDDvKgCKDXQISsuaNWtEifbLX/5yDIBpsXnzZnELNTc3m/cWAEUFOgQlRJRi+/btM4s3AKLzi1/8QtxO5h0GQPGADkGpOHHixEMPPWSWagBMl1gsZt5kABQP6BCUCvFb3izPAJgB77zzzrZt28z7DIAiAR2CUgEdgqKD9lJQOqBDUCqgQ1B0oENQOqBDUCqgQ1B0oENQOqBDUCqgQ1B0oENQOqBDUCqgQ1B0oENQOqBDUCqgQ1B0oENQOqBDUCqqXYcff/xxnYcFCxZs2LDh008/NXOH4JVXXhF7WLZsmZngkEgkRAbxr5lQiMuXL3/rW98S295www09PT1mcg0BHYLSAR2CUlGTOmRSqZS5QSFKpMNMJqOf2KlTp8wcNQR0CEoHdAhKRW3ocOPGjR9rvPTSS3feeSeJ59y5c+Y2gZRIh1u3bhVbPfDAA6KOKNQ4Ojpq5qghoENQOqBDUCpqQ4d55TQ8PCySrrvuOjMhkII6nB6rV68WuzWjNQp0CEoHdAhKRQ3rUEAVRDMaCHQ4c6BDUDqgQ1AqaliHo6OjIumOO+4w4qtWrSJNEr/+9a/1VK8OT58+LSLz5s3LZDJjnsZSWhVb3X333fpu//SnP+kZdHjb9957T+xWTzJOpkqBDkHpgA5BqahhHd51110iaWBggCPCZ6Sf+fPni00efPBBktDixYs5j6HD/v7+OuXCy5cvUySvDp966inKdtNNN7HhhO1EhhMnThw5cuS2224TkSMKERHxJ554grKJk3n88cf/7u/+jlYptaqBDkHpgA5BqagNHfqh56TKouDw4cN6vL6+vk69m0Grug5JqJxE5NWhcaympiYRufbaazliNJbSyVx11VUcIehkXnvtNSNeXUCHoHRAh6BU1LYOBRcuXKCc5DlRdXPvYOzSpUuU8/z585xN6DAWi9UpFxq9QPPqcMmSJXqe3t5e2idHDB3SUcS/HCHoZLwNvNUFdAhKB3QISkVt6DBvY+mhQ4fIScIxY463hJbMfGNjCxcuZDmRqETFjra97777jMx5ddjQ0KDnYUlzxNAhbXXx4kWOMMaG1Qh0CEoHdAhKRQ3rcMxRS0tLy5gjpLw5RV1QJLW1tY05OqxTj/Ro4e2339Yz59WhsduCOgzoaGpsWI1Ah6B0QIegVNS2Dsk69CAwoHZ41VVX1Xlqh2NOn1JDTkXRIWqHAEwP6BCUitrWIbV5kgKjPjuk1HXr1onV5557jvMXRYd4dgjA9IAOQamobR2Sk/74xz+OFepZyp08DR0K6MUJrskVRYfBPUvphKsX6BCUDugQlIra0GEAzz77LGfm9w7FvwntvUP9jQivDtmjZMSi6HBMe+9QnIz+3uE0hh2vNKBDUDqgQ1AqaluHZ86cMTfwjEqze/duPdWrQ8GiRYvqnLf1i6XDsXyj0hgnU6VAh6B0QIegVFS7DkEFAh2C0gEdglIBHYKiAx2C0gEdglIBHYKiAx2C0gEdglIBHYKiAx2C0gEdglIBHYKiAx2C0gEdglIBHYKiAx2C0gEdglIBHYKiAx2C0gEdglKxY8eOo0ePmuUZANPl6aef7unpMe8zAIoEdAhKCCqIoFhcvnwZVUNQUqBDUEIsxeDgoFm2ARCFrq4ucSP927/9m3mHAVA8oENQWkZHR0mKgscBiMJDDz3EN495YwFQbKBDMBsMDQ09+eSTXLQBEIb6+vqnnnpqYmLCvJ8AKAHQIQBlZuXKlb/5zW/MKABgdoEOASgz0CEAlQB0CECZgQ4BqASgQwDKDHQIQCUAHQJQZqBDACoB6BCAMgMdAlAJQIcAlBnoEIBKADoEoMxAhwBUAtAhAGUGOgSgEoAOASgz0CEAlQB0CECZgQ4BqASgQwDKDHQIQCUAHQJQZqBDACoB6BCAMgMdAlAJQIcAlBnoEIBKADoEoMxAhwBUAtAhAGUGOgSgEoAOASgz0CEAlQB0CECZgQ4BqASgQwDKTAEdZtKWRvMLaS0pJUOPdeYiFHwsRYt9e6zk+3Y4ZlmpEc4kEZvGdva6QgDMYaBDAMpMgA4n3k8KaQ19kYtI/61L2iukQ8vq1D3no8PsRJ/I6axkG4UerQZeBQBAhwCUGX8djgtlNb6UccWU1ZrfGJfLSoft66QRcxn8dOhS6YRYVLsAANhAhwCUGT8dprYIZ8XMaDabfsbxn9Kh+L8wYs6a/jrMqiZTa22zS58AAAV0CECZ8dNhq7Re0owKVAvqRDanw6yq+WWm1FKgDqlyaa1tc0cBANAhAOXGT4eNUXTYIDM3yqVAHfY0y/ohbwUAYKBDAMqMnw5VY2m9GZWSk0qTS5oOs1MD0ocvZYJ0eKHDUv1uhDtbT0ifAgAY6BCAMuOnQ+rw0rCnzx0zu9Lkkr6USY3PtPnpUKT2OhK03QkAcIAOASgz/joM9aJFLk34b69qNM2nw+Q6l1l7d8oqZh+qiAA4QIcAlJkAHUpGXa/hN+4zX8PPrSqkDz06HH8jT29SZc48PVcBmJtAhwCUmQI6BADMCtAhAGUGOgSgEoAOASgz0CEAlQB0CECZgQ4BqASgQwDKDHQIQCUAHQJQZqBDACoB6BCAMgMdAlAJQIcAlBlfHTrTGRqY2SQZHt2UMwwda+HgJrmda3ZD+RL+wx16BIA5DnQIQJkJ1mG4gdRyOmRSj1l6sDFmNXbZO+vb02CO/QbAnAc6BKDMTFuHB7cnRIbE9oPe2qEc241wRqihEVCHprLZEblbJwgAsIEOASgz09OhqOFZsfruk+n25rhlxQwdDp5Mt60Xi03p07kd0CRQlndYcAAAdAhA2QnWoYHT4DlpaTW8zEuN3meHRmOpZCpD+3AFAQAK6BCAMhOsw/y1QzXThR4Io0NZO1zbKv6JbeEWVACADXQIQJmZJR2qquFENjtxQhoxFwcAKKBDAMrMdHQ4JWf61VYHCupQVA07LtjLyXVW/TNpTgIAZKFDAMrOdHSYzTYKvX1iz97bKN8iTNKyW4dt9vIWmYOWCbGaGtEDAMx1oEMAykywDr1wr9DU7iax2rC5eWIqT2OpoCleb1mtoi5oqWZSncwx2cU0eXrSHQZg7gIdAlBmfHUIAJhFoEMAygx0CEAlAB0CUGagQwAqAegQgDIDHQJQCUCHAJQZ6BCASgA6BKDMQIcAVALQIQBlBjoEoBKADgEoA19qCB0+9dRTvGpmBQDMCtAhAOXB9Wq9hpkPADArQIcAlIdEImGa0LJeeOEFMx8AYFaADgEoD5kMzT7owswEAJgtoEMAysY999yjuxAdagAoI9AhAGXj3Xff1XVoJgMAZhHoEIByAh0CUCFAhwCUE+gQgAoBOgSgnPzqV78iF6ZSKTMNADCLQIcAlJP/+7//Q9UQgEoAOgSgzAgX3nvvvWYUADC7QIcAlJn9+/d/+OGHZhQAMLu4dPi///u/P/vZz5zn+sVn9+7d+uFAbWP++QEoBuZ9BmqX7du3m3/+4iFkJ5SnH86lQ5Fj7dq1J0+eHCsBw8PDdBL6EUENI/7W/QAUFRQgcwfyhSmSIiE0J2Rn3E45HYqEZDJpblRsfvrTn+KGniNAh6DooPSYI4g/9C9/+UvTH8VGKE+/o2wd/uY3vymdhw3EgTZu3MhnAGoV6BAUHehwLiD+yo888ohpjtJgaYMjSh1eunRp1lxIlPeejltW35QZNIjHxDlaGXdw6FDcHciR6WqM8qH6rMem95JZX5SjCOQg0X1mcJaADkHRiXT/i+9k295k0v1f5+kJO3lqXH3LrYNdPemT6dYnG8Ry8n0nVd3A9lImFeYLm1wntog175ZHqVe75n2ltsj1WENcJDWskUmxLUE7lDm0I1LxEm9u6z7cpk65wU6YkAVCbHNrarfM0LB/wI6PpFT+9oPbN4mF5jfG9f0070s1/z95Pj122EWjOvO2w91tzXG5z712+aE+ndVxPE0fzb1RtnObjGqBcZkpFu85mVbZnRMOhzXrPhISzJIOX3755Vk+/AMPPGBegFnE+7d0MZkhF1oeHTb6bwgderGgQ1BsIt3/jZ6vsI4SVKM7NiFik85K7lhhdPhFj3Fucv8Pd9KyWOwcySVNvC/b6HrzzfTcd7RFlT0uHYq1xi7+KNI0yfflUpM8RIcd/qidT75efLKdvXbuN5r5xMRC6wnb0T3N4gQ30XKOzzst7aKNH5dHUEvdYmHIqUWIHw6xXc7+z8sPTtjJ4lPsFTuvd9Ym5Qmf5sQCnDt3TlTXTGeUEnF6QoJZ0uGOHTus2dXh008/bV6DWYTuM3ln9PKdnx3YV99+Vi707REpMRKP+7sk/6i0JO6A+NpYbG089b6dRdfh0EtyuXeU1rKpffK+E5ntdYlLhz0vyAzWmgbeG2ks+8VgokFu2no47cSVDjN94ugi3n580ImrtK42kRp/snXCvmtlZiKgUCgdFnQIig1/y8IQoEMq6HM1QYeGJ1uHnGjuWGF0qAynB0RJEl9vf+tFklETs2L1Lcfz1M5EzsS+Hrmv3BEH4usbhtx5lB1liZTSPqFlW2fIcjWAqWyiOLrQ4TrDL3v5rCxJUiwMHIg3rHGXVOoa9u6Ux+To0KG4KiQljbIS2JJ1VzPSz4i13H4sqeFcYRvMq6++2tXVZTqjlIjTExLMkg6ffPJJa3Z1uG/fPvMazBpTfe0fyf+nHpN/Iw7Xm18zjw7F7b62Xfx/YL9sVGk9kEodaLVk40hP1q1DS3Ohus9iqbfSQopiqc/+puV0qDaUGboPy705GWgmvFjHcXtD53cZGS63Q/4+yXOyYumTaWoGScmfouPpk/I3XcfJdNg7sahY0CEoNpb5PQ0iQIfyy2O1mVE3uWOF0aGqtLUezd8Wo76d9YPjYb+Ibh0aSNt1XMh6yyjZuLmnT56t+ypZSp+eFqycTeXpKR0aDB2Vba1Z7/kYZlW4IlOyBIvvkJu0ydY2251h+MMf/nDixAnTGaVEnKqQYHYO6lBY0FnM1fYme6WKnDhh3mqNTuOGvKfWJbUUCd1q1AaSi37UbjlNFoLJE3wUR4eeBhZnVdUOmdPJxEt0Lq7GUrHDxmNSiO1rLVK1zYhs8VBLaCwFNYXnexqE/E56oCS5tCf3zZDfW8aJc+ZwOpTQj1SC6kw5MgNNsrHHpv2kn6klpn4Y9VDQbjj1aE9+XrGVp54qj7enT7V7uRqHLafRNS/0vDOjfojLPWuXiw5tfADXQScG5EHXJJxnh9ChP2XUof43Exah2pXQFDeFOxg6lA8V7EV1R8q/8NpN6fOuZ9QEb5N5KeG+2+Q+1cNuW4f6Vgzd6ZZ+b4mbz74XXToU9z19McxdKGhLCzoENYRzY4cioHYovyFaZ5Yep6NNvTUjHTKT44PqW5ivC8mXQ82qewL3cPHip0MRTnB/GY+TbGnl06EoKJQOzbje1urii7RIHXDajW3RMh4TZ91Fq7yMj9nPTbN2FeIgrwYDHc4WU33aA15Z5d90dIhaOQbMvqZuHTotpcz4eXm7KOQPHxJb76jsf5U8bTeJ5NWh2qdLh3oOh+g61H+75YAOQU3h833JT4AOO9ZbrqLAQa8G5Y4VQoct6+PWM/yMX6G6n6h9DViP5txAyBYdd11NJ48OVT/YthO6QdUzQm1d7lEUCNpDQY6LgkhrnSJ8C4fxE21yD1qRKC9XLJlbT8sMuVWFHrHcXYf8C7o8QIezxNCheMytDcvapP5Um/SgwqVDcTew2Jo3x3N/6alBka3nC/3vrdUj3Y2lE7kuXk5jab4fWYpoOkzK35rulhkb3zt+FrBqXYd79uxZunRpXV3dddddt3Xr1jNnzpg5QLHx+b7kJ0CH2QnpDP21CmLaOux82DL9qrSkusDknsswysetRpAxdagexVnrzPxyF7kuKjIPPdCx7IeLClkHoNOQDZi5LjmeSiRBRVmry7t62SUxOl4Qegax3KR1FFI9cfL8+MgLdDhLWJ6vh/SI8pkHXYea4ZzbZdP2tvTxDrW5bA/Rf/50ynvFXla7z/V86bE9mutK07dHdlruOJ7u6ToYy3WnjqbDrPNB0ifTbepNowY7v/wexnd0hn2CX1SsGtXh2bNnv/71r9f5IFI551/+8heOc9AbKTrvvffelVdeeerUKTOh+nHd/4VozPfeYXKv7PummKBvTfJwN793KPujaf3g7CXxBVzb6N6JWdvLOm/mNaxvEhkScdleyLrtVM/hLPVWYtN6+0DurV24dDglNVa/pc11Am8or9F7h/FmKl6M9w5jm1s7diYsz3uHiZ0drZvl+fB7h+p8klnVwd7yXDQyKH269q4eeg/N3lLDFRyXPwWsNZt6TtrvKdIzyDBAh7OC/JVkvkev/vx570tNh+Jn1PoOPW1ypE/e7rH69i77h6TRGiD//s77QHSnBr1ocbhV3TCx1sP8RY2sQ5nWJV88qo8n+kZy+htPt8ec34yzjFWjOvzKV77CSvOycOFCzlkWHR46dIj2Dx3K72QeknqeyfFB9dqS0Fg89ZajE4Wl69Akfztnuusg7U18Dc20yUzb9oRIijXkXtDyQ9dh3h4GuYcjU+PNmxusNQ09F9w13clMU7xeFDt97kNNjqTFGdbHm3Q/qT0msz5XjJuXBo7LwiSxPf9TQMv400xNtqvP27Q7V9aFAToENYhVizr88Y9/zD774x//yHGxzPFdu3ZRMK8OS82SJUvoiNAhqEagQ1B9iL+jGXJTezr84IMPWG9vvfWWkXrkyBFK+upXv0oR6LDoFNThxx9/bIZAVQEdgurDcojHzSZoovZ0uHr16kh6y6tDb0SwYsUKjhPf/OY39QwsuQ8//PDKK6/Uc15xxRUiKPL8/ve/1+OEvpMawE+H99xzD9+QZhqoKqBDUH1w6cP09PCzTzuDWZhVOdyDZtGiRWZaPkLq8J//+Z85qKMbkXWY98nlj370o/45qUNRIzduQiMDqDqgQ1B9mIWQw4EDBziDWZhVOewYISczLR9hdPj6669784hLRxFR3FOEdSh49913KairkbedI42lu3btct12Grl7FFQhc1GH9aDKMQshjVWrVr3zzjsWdBhCh9dffz2tbty4kfNwNq6GsuREFZDztLe3U7BuLunw2LFjxv1mYN6poKqIxWJzTofuHwSg+jALIcUjjzyiZzALsyqH3XPNNdeYafkIo0Ne9YOyseS6u7t5V3rrKAdrXod8g913333G7UdwBlCNzMXaoXkNQLWhF0ArV64U1UFvBrMwq3K+/e1ve/Wjc8cdd1CvFqIUOhT75F3NcR0Sr776qn4rejOA6gI6BNUHFT0PP/zwyIg2OqGGVXM6TCQSXv0wQoScSiqKpMPnn3+e83iBDgk/24mLf++990KHNQB0CGqQ2tOh4IorriDZiAqxHj979iwn/fSnP6VgGB3eeuuttPrd736X84iqtijche1YadAhAdvVPNAhqEFqUocvv/wyG+jKK6/s7OwUwd27d3OwTr0aSJnD6FDsgSM83im/hrh161aKTEOHes6aATqseaBDUIPUpA4FLS0tLCEvwpecM4wOBd/73vc4qCOqm5wnr+Ty6lAfK6DOPaR4DQAd1jzQIahBalWH/e6XBXXuvPNOPVtIHQq++c1vcpzgsWaI8Dr885//zEHBO++8w0k1AHRY80CHoAapYR2CcgEd1jzQIahBoENQdKDDmgc6BDUIdAiKDnRY80CHoAaBDkHRgQ5rHugQ1CDQISg60GHNAx2CGgQ6BEUHOqx5oENQg0CHoOhAhzUPdAhqEOgQFB3osOaBDkENAh2CogMd1jzQIahBoENQdKDDmqc6dPjpp58uX758xYoVw8PDFOGFqECHcwHoEBQd6LDmqQIdivPTB0IU96UI0vRvd999t5m7ENDhXMACoASY9xmoLapAh2TBs2fPDgwM0PLo6KhYveGGG2jV3CAQ6BAAZuXKlb/5zW/MKABzkkrX4blz54TwNmzYQKtioU6NlE+r27Ztgw4BmDbQIQBMpevw448/FsI7dOgQrdLsNrw6PDwsViM9R4QOAWCgQwCYStfhyMiIEF5bWxutkh0TiQRnEKsiyKsFgQ4BYKBDAJhK16FAfGP1FlGxfN1119HyhQsXxOr58+c5tSDQIQAMdAgAUwU6HBoaEs676667aPWOO+5gO9bX1+PZIQDTBjoEgKkCHZ46deqWW26p88fcIBDoEAAGOgSAqXQd0sPCAB5//HFzm0CgQwAY6BAAptJ1eO7cudOnT5vRGQAdAsBAhwAwla7DogMdAsBAhwAw0CEAcxfoEACmEnV4zz333BSFc+fOGXsIADoEgIEOAWAqUYfLli0zO8wEgtfwAZge0CEATCXq0CCTycybN69OjdytB5csWSKCzz33nJa3MNAhAAx0CABTBTpcunSp0N7FixfNBLyGD8DMgA4BYCpdhzRm6erVq80ExaVLl0SqyGMm+AMdAsBAhwAwla5DY4InL3h2CMC0gQ4BYCpdh2PO9L/6g0PmzTff9EvyAzoEgIEOAWCqQIfr1q0Tzrv22muN+LvvvkumNOLBQIcAMNAhAEwV6FBU/qhnqeBb3/pWfX39bbfdRquC++67z9wgEOgQAAY6BICpAh0SFy9eZAUSv/jFL8xMIYAOAWCgQwCYqtFhsYAOAWCgQwAY6BCAuQt0CAADHQIwd4EOAWAqXYcFp/+tc947pJzLli0zd+EGOgSAgQ4BYCpdh8PDw0cKIfJwzldffdXchRvoEAAGOgSAqXQdFh3oEAAGOgSAgQ4BmLtAhwAw0CEAcxfoEACm0nXIXWkijdMdAHQIAAMdAsBAhwDMXaBDAJhK12HRgQ4BYKBDABjoEIC5S7AOGy1rwIzlwVJ4g0YkGpmU2EPyfTM8bcRnsda2m9Gi0hKPmSFQVUCHAMxdgnUYRmkT6WQeHX7RY0aiUmwdir01Hhs3o8Ujz0UA1UZUHb744os8GgyxePHi/v5+M58/09Hh8PDw1VdfvWvXLlodHR2dP3++OPbvfvc7d8bCQIcAMEE6/LK3QPk+Ndkcj5EGjJxDh+IFti1IcXWoPkt6ygwXEe9FAFVHeB0+++yzhgh1hK3MDXywoupwx44ddIyWlhaxeu7cOfehMf0vANMkQIc9zeKrKVv/qKB3Wk0nuNzPdDWKDINf5DFBvVjfkqL8OWES61opjx5r/8iMWDG5naND+6B2ir1nOgGmYfwNecY6jccylJM/i8A4n4a9fSKYekwuq2OKM5Rtqu6di2Ay7+aW+uD6Kp1zozsfbQsqnJA6ZPU8/fTTRpLQ0/XXX0+ply5dMlK9WFF1SLvmGmhDQ4NYPX369JijaFfuQkCHADABOpT1u8ekeHp3yaI9tqtXLI8fb5Klu4oznhJ/0nKs0L5WJtU/k6YEkgQtm1t91C5WG7tsgSXXyVRtJ85juQsdYqVP1fPIWPX7bFOTvuztx7ubdh4cmpikNf4sA/ukqa3HOmV0QlYZ6RxIh2JnlF9sz0mCVu20B0+m4mubaVnPoy/TVeqboDXpcv5coJIJo8Pe3l4hnQULFoyOjpppDi+88ILIc/fdd5sJHqxIOqRZf2+//XaOkB1peWRkRCx//vnnnFoQ6BAAJkCH4ovZZltsgMt6Uk7vl2ZONoFkpNNytERJtheytsw6R3JJnNK7U67a+sraOyEdygRNwGItfmgo6+iw5ws7TuoVtB5w2TqrfZaEykAnoGPrsLnHXn8/qdaTtEYHyp2bEP5EpmOn+mWQT4e0MWdWF82uE4NKJowOly5dKqSTyWTMBDfkKRpPOwArkg7pvcNEIkGrFy5c0HU4po4a6ZVE6BAAxleH6tGddI6CCv5sdkj9n6tQNiqYK/379sjKlFrMGEki0dIlpyWRkHjVm9OFsiNZSrZ1OmiPMgWx9KiKap+FElKeqpqtwz32zsyWUgWlpXbIqqYObaIv59nY9dFAhRJGh8I4DQ0NZtTDhg0bRM79+/ebCW6sSDqk2mF9fT2t/vznPxery5cvp9UzZ87UhWuiZaBDABg/HXasF9/Lxtz6lKwgNqgGzG5P90yjuBfLMccrlMSbDL4gXaKbyU5gtzm9Xai9kXSo2mqTnJOhTVhtmfN9rU/G7dUvpE1p//pnSSpfNh23T6g+3tR9ejDr6DDXpDmaUltrV0DRt1dt/6hqa3V/BH05tSW3DKqIgjqk6tnAwICZ4OHDDz8UOe+44w4zwY0VSYdjTq2TGmqvuuoqVu7Q0NC8efP0mmIYoEMAGD8dylLfeeBHbKLynp/haegmoBoht0Zmjtk1JbE8dJIaEfP4Q0H9ZRrGJ7OTI2lKJR2S9lq65DPCga6WjuOuOhzr0O69sq5lckpmUyvybF2fRdUUBQPjk+m9CVrOenVIvYGEub+UHWgTaxsOdsl2VKfWKHebfNSuilJ+ShALQ0K1X0oZxx5NitXJz9MNm5udh5igogmpwzDtkSHn37Wi6nDbtm1kRHq5QjAyMkK1RsGiRYvMDQKBDgFgfHQoO5J0XHCHVHWN+63o6FbInpbO0wv/QdtMRGzQeZDo2krRprV1trwhtcovWuQSxC7iLRQ0dChI6Pms2JCqa1ruzzJ+ok3PNKDOx6vD7JS7T+yaBIVz5xiLd6vnnRTn9lXaycTpg04+yXgp3/EAxaKgDsk7BWfVFbz55psi5+rVq80EN1ZUHQoWL15M8hM8/vjjFKxTXWwCuvfkBToEgPHRIQBzkYI6HFPeWbp0qRn1cP/994ucbW1tZoKb6eiwiECHADDQIQBMGB12dnYKz1177bVmgsapU6dEnnnz5pkJHqBDACoF6BAAJowOx7TX8Jubm42k4eHhG264gVLD7Ao6BKBSgA4BYELq8O2332Yjep/WUfzIkSNGPC/RdMjzHYakYE8e6BAABjoEgAmpwzE1bvaqVavq8r3X8O1vf/vll182oz5E06Goex7R2Lp1K2lPD+oU7PMDHQLAQIcAMOF1WCyi6dBLc3Oz0OETTzxhJoQDOgSAgQ4BYKpMh5cvX7722mupgvjYY4+ZySGADgFggnXYsT7P8J5enCHcXHgjM0EdIc/gapVA3wttZigPcny7MBdzJkycPmiGQBRC6vCDDz647bbbnAd0JmFe0memr0N9iikaj+aRRx4xMxUCOgSACdah5X6h3g9ylTsmX6J3R2ZExepw8GiTdyy3PKTbQl7MadO0xvtXANEIo8OhoaGc+vJRch12d3fzwXi8OFE7pIg7bwGgQwCYIB2Wd/rfKkF99MI6bJXZwlQip4/3rwCiEkaHdaoyJqRoJkwLK5IOR0dHv/Od75D2HnjgASN148aNdRFtDB0CwAToMPNSQhWvNItFrpzlVXtYsjUym55B0CYDakqjL+zRR23WNFEGVanK0XR0MDhOq3btcMKecMpyxnKz6Og0K9NjKaonKRpocxqDrfMTe1xvSw7/pk0p7MxInHXPiUHjt2Wdo2u7tT9sbt0eT841TTGfPOWkSamy7kMk9tvjr6ozbHQmDZZjog4dzw1uF9ucawV1DR1nxWj4N3uAOEKNn96iHebg2dwUWyCAgjo8f/68MM6f//xnM2G6WJF0yC9aeF1I1NfXQ4cATI8AHarJH6QnaI759rMqOt6t1jZl5fDczX3KT1TmapvmSn8qklvfymS/tLWq5h0knzVkvpQjXFNczaGYi/NuaW5FWiYd0nJir9wRLVu6Dmns7Elbk3Qazuy+MlvPrgZaTn00nv1ikOMCSsjIMcR79Dgt05DctDm7TaXYtUM14aJ98jTAN08MmVtWY4g3tKTEYscWmYfGU7XPkMWsJkMWxxQnQ0O51ivJHVSTisS2dIjlZprfMd/0Gu2UTZ0w/Qn63FNUgrwU1CH56OLFi2bCdLGmocPgCTWgQwCmR4AOxRezfr8asPusKppjsqTu3iYXeYIkzskFsUJWwnhWXoZkJUe4tqeV8LQx+sXz6NDJ4yjQXJbTLqoVNTOiLRvbHLm5n7J2RVYtf0EKjDubS4/Qsp7fXnWmI1Yp9smoKlqek8+qbLRAM0xxPHm4e1JV7+gMeXx0+gnCI4+rNf0KS5xBw5O0qudx5XcqzfYq8KegDkdHRwv6KBJWJB16EfIbGRkxo6GBDgFgfHVYnOl/s+NpquXkoAkf9JZAQf2WdsrvF6fVnA5zhbunsdQRkm0LXYf2LIwuHdI2ufxuaANapvz2aj4dOqs2fPLyYq6X9TlvfsaY/VjfDyNPZmLQ3VhqBejQwNk38KWgDgWvvPLKvHnzvIPRTA9rejrs6OigVlPmhhtuuHz5spmvENAhAIyfDmmeW16d7JV9QfqUMDYdZUvaGKWtzGSX/nYDaZ+qTNqyck2iNNm03m66dO12ajJ1QPU+ceK0nNOhYxfq72MVQ4fO5kmK6+j57VUfHUrUyZO06OTFxWw9YfcqTciwXQHVyatD+7miBu225bjcbdjaIQhNGB0Krr76aiGgFStWHDp0yBwI5siR4eFhcwN/rGno8K677jJcyAwODpq5A4EOAWD8dCgb69Y6lRsFlbACVzuplqSvNr+h+m44c+1SnIpyocOB/fVqUT6AFPSqWQOFq/zitE/L/eyQOod0ag8FZ6pDNcsjx3WMuFzJp0O1bJ+8+Akh19QRm7VW0IF98jPSRIz2EWPJrEeH1CjdYJ9wDnUIu9be8TCtJfUkfbkPHWgiUlCHYQYNjfTwzoqqwxdffJEOoz/AFMvXX3+9CF511VVa3sJAhwAwfjoU38rGYy7xUQFNTxAN9IKYqmtcilOSCzUxvafFz8ooQ/jFaZl0SP1EDGTCTHWY7dtjV1UZiuvL9qqjQ3oWaKkuQt7mVj553tbeXGNAe3ao5XJ1UlXIXrLN3gtkJczdPpOecB6jMl6zAi9VoMM6/4mjyJRmNBDoEADGT4fVg8ttAMyEgjosOtF0SO95bNiwwUxQXLp0SaSKPGaCP9AhAEw16pD813lePo2j9xmsbd1mJgCiE0mHM+nRyUTTIVVOE4mEmeAQtXIKHQLAVKMO+/YnyIg2sTw9UwCYBiF1eNNNNwnvbN26lVYfeughaibt7u52ZyxMNB0KA4vDLF++3ExQfPTRRyI1Uk8e6BAAphp1CECJCKNDkYHkd9ddd4nVJ554glaJV155xdwgkGg6FIhvbJ3q1WrET58+TWdgxIOBDgFgoEMAmDA6FMb5+c9/rq8KaAjTRYsWRfVRZB1mMhk65Pz587dv307vdixYsICCjz/+uLlBINAhAAx0CABTUIcXL14U0vn88885IlYXLlxIy4888khdxL4skXUo+OSTT0h+BuvXrzezFgI6BICBDgFgCuqQ+rLwKj2t43kGE4lEXcS+LNPRIbFhwwaa5lCwadMmUWs0c4QAOgSACdYhpv8Nw0ym/6XPFfyxKI8Z9YC5f2dOQR3Smw48QltbW5tY7e3tpdV77rmnLuIA39a0dVgUoEMAmGAdhiqF0/Yb366oGg7bFalR1EfPMwapAQ24Y0aLp0P6G5hREJGCOhRcddVVP/7xj8ec4bx5HJgDBw6I1aVLl7pyF8KCDgGoEIJ0iOl/Q6A+emEd+k3/S5cOOqwQwuiQR0kjtm3bJoLDw8O0GnWyCyuSDsMMiqOzbNkycxduoEMAmAAdYvrfEk3/qx3BXrR1+Hl3LmVNQt/Wco6Yd05g19BwNC3i5txBxCXiXYFgwuhwzOlNSujBSK/8ERZ0CECFEKBDTP/LcVouyvS/k+okaVcDXbbbyFe0nB6ZtE9+rczDcW1ZzglMZ0hzAmfN2qEaGXxdi1gaUD8vKvOZawUSUoeCzz77LFKXGT+sSDosOtAhAEyADi1bXVnHUrK0pYoIl/Kck1JtRjotTwNgT1c7qVFN8GTvMNbQRJPfOuTi6fOuHVA83ARP9pnkmf43eAhv9wRPVPelaZn0/PZqvhktlA7znHxWZaMF2YisTfBEe1a55VmpKqZEv86URy6pMzSGR6cz1HWYb64oDNwTivA6zMsrr7xSN2s9S/2I1MUUOgSA8dUhpv9V0Aa0TPnt1Xw6dFZtwkz/Sznlx3Imw9IhO9KyzOJ/hroOadnAPh4IpIp1ePny5Wm85wEdAsD46RDT/+ro+e1VHx1KCk//m/s9QXv21g51KI9cctcOdXQdeuaKAmEJo8NUKmU8ofPjvffeMzf2YM1ch6I6yC8g1kGHAEwXPx1i+l8dIy5X8ulQLdsnn/WZ/rd3l7wMaXcnndyzw3VJJ2MOyqMW5RnmnblQ12H2rKyRpzzvOIKChNGh5rsCLFiwwNzYgzVtHd577736wbZs2cKvQ4YHOgQlJF+Tl+Wel1zvoEjEn+nlVIrkcgdCFSszauOePzZfOZv11aEsdjsuuEPHZYtp/T4u2HPQEeyV07JktqtCwkPbSIKS9MmD8n/KsuPO24pEfEc35feL06rTszTXQbT9tNbnZaY6FBW7idzpWrnunbRm53HrkBswqdbrbClxTl5eTN42657imDa2P9ZpdX0cEvvsJ7e0Sst9LyT0PO1p58fJSMoOqRNr0TvIWrFB7fYDARTUIXXt9HubYjYaS4eGhm699Va24Pz5819++WUzU2igQ1BClA5zTV6T4wkql2JJCvBM7oMZqYyh92V+QeMxuwmRVp3t/dEKbjNJYU9er14hoGzd3mqdrw6rCEz/C4pGSB36Ca/kOtRftHj22WfN5OhAh6CEGDrMcpVFaik7ZfecdA/WZVfjaEVf9oNrJDGlRDNZQRn6VL/N9DNq5Rm7tqFTjTqkj4bpf0HRKajDomNF0uFnn32mPya89957I/Uj9QIdghKSv7E0Ro1Vdtd/q9nYiKLkSFo2MhjwC38BnSZc+7GVbB43W506FHQfbouvlSKMP9mqqtkAFIGQOhwaGpo/fz5biRARM18IrEg6JC5fvtzQ0KAfu7+/38wUDugQlBAfHWZULc15GTxpbGRH3b3qwxBRh3nGEqtSHQJQCkLqUDeRzs0332xmLYQ1DR0yzc3N+uFXrVo1MjJiZgoEOgQlxN1YOjkxwZ0assWrHTIRdWgeNwsdAqARRoc0i8Wtt96qd+QUy3feeaeIt7e3a3kLY81Eh4Soq+pSjPToEjoEJcT77FA3kzNsitG8R8Fcb3sfw3kpqEPqPWM/a3y008iThQ4B0Aijw3nz5q1YscKMKoSMRKoZDcSauQ51nnvuOegQVAqGDqcm253BlCmQNHuWyvHMLO3ldD1zQQJ02Pmw2lHt9ywFoGgU1OG5c+fqtPkODR555BGRKvKYCf5YxdVhVKBDUELyPzu0YltSnMX73mFDSw+nmmmKPO9dKwwdut+us0cvs4n23qFNo/b+eAB0BG/QiMwmlnpPn1qn6YeGvgxAXgrqkN50MKMO0xglzZq2Dv/hH/6BG0hvu+22Tz/91MwRAugQlBCPDuPr4z3nPfWy8UHqGNmwPt79kauINjYnpqVDSfv2hAi0H/eVWrAO9Z37UZHT/06IXyBZKBBEpKAOL126JOzz4YcfmgmKJUuWiNRI3Vmsaejw7bffZhHq3HXXXWbWQkCHADBBOqze6X8vdNCDUugQRKKgDgWLFi1avHixGVUIJYlUMxpIZB0+/fTTJD9qsV22bFmdqq4+8MADddEfXUKHADABOuyR45bKOhbZzqlg5gYNUD10YoNf5GkslWOPqvZhqjnmfTJKyxr2VL19e+xBvQmnnZnafm37Dkxlx9+geRhz0OZZNdFSapR2JeN5Gku1Yd4Ie0se6szGPiV3UGIPF+eMq8D0OVNfNeqjpDn7DzhnUAmE0aHQENfHfvSjHz3++OPiS0SrQkZ+jxX9sKLqkF7D5xcNWYeC+vp6Xg4JdAgAE6BDWb9TA2DSqNOxXb1ZZ+RSbX4liadkl6NXU38iXx1SJ1tnoJx4Q6L79KBcsgUjNSzYpFbU2Dr2o1B7FmJnRkB7Zby7aac9NXxWa+P106EzX5Vk6JA8iD44OMV7d8pPTcsUH6KpGekMm+XjXton5RE0bG6m6RvpKjkD1cofEHQFAs4ZVAJhdCj41a9+xUbUmcYQMVYkHV68eFEc5vbbb+eIrsMLFy6IZZGHUwsCHQLABOjQKsb0v746VA8XBW2Hu/UZgPVxt7OOb9TU87YOeTBq/7l2ZU5a8tMh7crJz7iHP1WPgc0JeBVyRZ3hBNX2YvUd7qez9Kl5VX0k2cXX/5xBRRBSh8T+/ftvueUWIaClS5ceOHDATA6HFUmH1JMnkUhwRNfhmGqujdSTBzoEgPHVYZGm//XVYdacnGHTTikYZ6QCN9I92jS/Dq5pG5wKJdU7adFHh3l2pcIpZ1c58g4VJFccYR90XqQhyNb0o8GA8uc/Z1AZRNJhUbAi6XB4eFgIb/ny5RzRdXjmzBmxfOnSJU4tCHQIAOOnw471lmtQN9VC2KBemvS+v0hFu74ac3q3kg5V9c6dc3Ki+3BbvZOtWUlCLqn5oXgCEA3TYZnzfa1Pxu2VL1TFTu1NzhrsbO6jQ+OEhxLb21QNNfJ8h5MTQx27c2P9qA8hL1pqS/79+J0zqBAqXYdjzrNDPktdh4sXL9ZrimGADgFg/HQoS3b3DBj0GC9vhYYSnDXpLZ6yw5nRV25lzz6hck6S9mirL4cogTaheEvXQHZyPL423nHc9RqlvV+nr0rqIynnga4WsdzaK0c2EAuJl+zKqJ8O+/bK3jptb0lJtyjH96pqXVI1ZqY/p7ky6tsO2FVAdeQ8OqT9JPbKCzX5eVrGH1ZD/3wpVRd7NEnxhs3NE2ogIr9zBhVCQR3qMyz5Eam10oqqwxdffJEOk0qlxhwd7t+/nzR54403mhsEAh0CwPjosGjT/2b12W7XNJEDKT6ofMAkXnDqSVO2HYlYvEVFTR0K7LkknYwqJj3Ejzb9dCjo1OYlFsdwwtmEa5AE2/20wnnkitNYmmpx9YPlPMZcvuPO89F85wwqhSrQoeAnP/mJOEx9ff2Yo0Pi6quvjtqxFToEgPHRIQBzkYI69ENo6IEHHpiNFy0YGgvgqaee+o//+I9pdGkloEMAGOgQAGbaOiQWLlxYF/Hh3fR1WBSgQwAY6BAAZoY6XL16tdDhhQsXzAR/oEMAKgXoEABmhjpcvnx5aZ8dFv3RJXQIAAMdAsDMRIeXL18mH0V68a/IOrzpppsizS8FHQLAQIcAMAV1WNBHvb295jaBRNNhAOLM5s2bN3/+fDMhEOgQAAY6BIApqENR9brJA7swUjslUTQdjjlzE0eqnEKHADDBOuxYn3uhPgB9RGzGGwkDDW9GQ6PNHONdwxninU6y5VDhMWUmT8hxcszorCFn6WrLul+d1JeBTkEdBkADaPNUEyGxiqjDMYxZCsAMCNah5X6h3o98xWtuHO1IVI0OM2oI8hBDrHU+KvLlXvOfZTIvJWiEPP1vpC8DnZnocEwNoFby+Q4DOH78eF3E9zygQwCYIB2WY/rfStahjrem6IelDRo3+8TzD9MK8jNDHdKLFpGqZ1YRdTgNoEMAmAAdioqFKkBpFotcScqr9mRMa2Q2PYOgTQbklEYTn8jJnpjYNjWkp6JJGw6toaWbgqTDttekiYnk+zynk2sEtVhctgHauMd1azo6SOEAHaqMuTHK5Zo97pqs1ybT47zD2KPtlEdToGv2YJHU+4zUP9N2Qo5KKpmSA5mqQePcg8w5s2eolQnXwG1WjD+wPulHfIecYTHrnEZnOkWZRWTwKDVX2/DHz2pN1pTkXc5O5T6poP20c/DPu3PRNQk7SLNUPpbKJTkzJGdHc38yy/3XadF+Mx0860wC6X9jlJEZ6vCqq64SOjx//ryZ4I8VSYefffbZ41F46qmnzF24gQ4BYAJ0mJSFmFQazeBuz7s7TqXkJrGYOdbcp1RDJZq2qYzobXQDmUkep5sGrabBsuUg15O2J1pPyIKSdChIj0wOHLLXaJ80hrjcZGqSxt22YvL0aH5dgTiIMRr4tHVo0RjizvnTIKh6jdBVO6S5G2OJicns+Ecp2oSm8KBfDPpu1bJLhzQJIh3OHuVcfa5xmkxR+YZ+OtA8WfahcxecZqOU2exhxN1HoUU97l0enxJn3pGL25Mwy+UeMv3apIyTDtVfh/9w+n7kxCCT4zSKK8Xb1V+K8ut/mty27j9ZeSmow8uXL3/sw29/+1vqUGNuE4gVSYcfF+rYarBs2TJzF26gQwCYAB2KL2b9fjVg99l2WVypMrp7m1xsOu7Ufpyc7uJMVp56vsiyAya0CX4VrpI081Jj24GUPeeDihsTQkkJfE6ViXp7B9pBe3ep4nRbt50wNSjzqTOfvg6dKaLofKjx1leHJIm15GYX6icFzQDlq0M6xMFPcpVggqYCcYYjp81lXdA+9Fq7zursSpuNy6Fvrzw8Las8nmVbb/aZJ535Q3qUiPmvkNOVo0OK+8+Zxdi/VOw1tbnK774aFUNBHRb00bPPPmtuE4gVSYcGAwMDdFQzITTQIQCMrw6LNP2vq81NFOdrVantaip0oesnq+nQnhbYmUci61jBu4mzVTKbr7wmnFV/HbrnayygQ3erpuVMZZxVu209Qb2RfHWY9cwJnB61t/WS9RxaMHS8Rc9Tv8U2pdzrzl5apiRj2XtVCbqkBjLB1qF93ajua//aoOkbmTWy/SBgRuX8N0a5KajDgNrhxYsXzdwhsGaiQ8HZs2eFDq+99lozIRzQIQCMnw71ioVgsle+LdCnir9NR9mSNlSi8arMtL5DS5e0Puk8XXu4k56o6ZswfjocP6ZSuErkNOFm7RqY1fxGrnYl1x/tzEbQ4aRcm4EObSbHE3Gq1Kk24dGUlftJ4dbhBa1l0iF1oJW1mNU+uwEdmhpOdYY+6mlab882pQKuWbq0eG6ZHg97/1j6p3YRoEPF5Phg23a1T7teaztSy+Ji8vMBvjHMu6ocFNRh0bFmosOOjg6ull599dVmcgigQwAYPx1K2WjuyWo6cbWTakn6qi2nj1Qrq5NEb+BRvY3iNOnuwD5SiCxk/XTIPXqGqN11IlfOkqq5zkpldLc6y4DGUjoQLU84PUTUWmQdUtOi8yBTvqxpKV3R1McUzDqfZUCdf2qLLT6OO95SYlZxeqbo1Z6hQ2eCZVUby2Z7d9qb08Xn3wi8W9ey9owwq70/SnNbWuuSFM/hp0N6esofVsk+pU7QFWfy3RjuXxbloZp0KPzHIvzBD34gFhYsWGBmKgR0CADjp0PxrWw85hIfPTXkQl/HVeSp1zO4aGvk+o5DSr3XbxtIo0cdzV+HTkdWDdqVIEk9azQoHqDDoUPUNUcjig71k+EnZDrCQ7KMd55BCnJVP0lOh97PFduizmTKrlBqCdJD3tqh5xrL3Sov5qYX5rixnNKnQZbYm7gmNVbIqJ8O/f8E3j80Gdp7Y1D+8hJSh6Ojo6tWreKKGbFx40YzXwisaejw9ttvp0PefffdHOzt7aVgpBkXoUMAGD8dAjAHCaPDTCbDChRfnzpVPaPVkk//++mnn/KxP/jgAyNVnHpdxNceoUMAGOgQACaMDuld+1deeYVWxXIikRALp06dEsv333+/K3chounwY6djq9eFxOuvvw4dAjA9oEMAmDA6FDLatm2bvko6pOW6iG89RNah3kCaF1GDNEP+QIcAMNAhAExBHdI43cPDwxzRddjQ0CBWRR5OLUg0HRrQax+fffaZmRAa6BAABjoEgCmoQ2qt1CO6Dh955BGxGmn+3Wnq8He/+x1VRZlbb7016nPLMegQAA3oEACmoA6FcYR6XnvtNY7oOqQxSzkpDNPR4YoVKwwXMkNDQ2buQKBDABjoEACmoA4FixcvrtNaROscHQoT1am+pq7chYisw/b2djIfjYKzbNkysZzJZETtUCwIIZsbBAIdAsAE6xDT/+p4R6KJNP2v2riiR+wEYXTY399PPvrBD34wpnR49dVXz5s3j4JCTOYGgVhRdUiH4VXSIS3TIDWcFAboEAAmWIdhiuyJtP2etSuqhilxRcJRyTrU8arRDzlkjXoZn65SKU4GFIswOhxTFcH58+dv3bp1zNGTYNWqVWa+EFiRdHj+/HlxpIaGBo7oOrx06VJdxPmloEMAmCAdYvpff8Lr0HKm/6WrVIqTAcUipA6LiBVJh9STh59Vjrl1OKbkjPcOAZgeATrE9L9Ekab/9W8snRjkDQXdn9thfZ6K2OaDFLSv+Z507ndILGHvxv9S6zNmDDiXM2DS4DlLpevw4sWLQnh33HEHR3Qdnjt3TiyPjIxwakGgQwCYAB1i+l8nW1Gm//XToT1md/JkJvMWjUWuRvW0B7mOiQ/VpmxW7x4rtaEllR23B+CmOaRoWV5qZxRTutQ0+mhib5rz0IxTarEho6namVtx7lLpOhQsXbpUOO/222+nVdbh6dOnqdHWlbsQ0CEATIAOxRezTRahWWe+dVl8U2FslJucajMiqykkIUqy1tjFrk0xJngidWRDT/BkoLb216EzBaB+PgV0KIz1cLOcDl4jYdlnkvXRYfoZtfSMfaEZysBNsbQ6mdOhfeb6aVAecalTJwed7XjbJC3bm6tJECl7rKEpfT7vFZqLFNQhj5IWQKTWSiuqDqkDq+CWW24Zc3TIRJ19GDoEgPHVIab/VSRVvgI6zIaZ/je/Dv2eQVIGg76cDpOUzb4stHneS51/V3Jzv0mD5zIFdTg8PHzEg3AQveYg/jU3KIQVVYeCgYGBOucJoq7Dw4cPm1kLAR0CwPjpENP/UkJIHdoETf+bX4d27dCZs56hDKYkg3Xo0NN1kDaXl1r7cZCfqcnUAbuR1vuXnWsU1GEwQkmLFy82o4FY09Ah0d3dLf695557HnzwwQ8//NBMDgd0CADjp0NM/0tJYXQYafpf89mh/SzWnmXQvhBdGZpdssFTawzQoVryvdS5HwsOKryJlmnSYNPuc48Z6pAGaZu9MUu9iLqqPqBqQaBDABgfHY5bufnZnZCaIb1+n+xgYkAFrr1yWhrEbh8UjNoVQSIWb+EUvWcpx/11KHH1LN2s2XpiUFURbVq6BikcoEN9ct3YNtUnM4oO2ceW+uCDXa6Gx8QLMo88Ja3aR0mmDuWuBnlDQcsb9vkaDbDtaWn4AB36XuqpCf3iWGsSFB53Xhgl4ju67fxzmBnqcPny5XURu3ZaxdVhXcRHl9AhAIyPDgGYi8xQh59++unNN99sRgOJrMNMJvPDH/6QnxcGsHHjRnNjD9AhAAx0CAAzQx1Og2g6pHFnwlNwjgvoEAAGOgSAqXQd0nseixYtMhMc6tBYCsB0gQ4BYKpDh8uWLTMTHKBDAKYNdAgAU+k6zGQyNK9TsYAOAWCgQwCYStdh0YEOAWCgQwCYStfhuXPnblKIBTNtWkCHADDQIQBMpeuQh0yN9IAwAOgQAAY6BICBDgGYu0CHADCVrsOiAx0CwECHADDQIQBzF+gQAKZqdChOdP/+/bxKs0xdvnxZyxIK6BAABjoEgKkOHS5YsKCurm7Dhg20etddd9EDRcFzzz3nzlsA6BAABjoEgKkCHS5atEho71e/+hWtPv3002L1mWeeEcs/+MEPxLIrdyGgQwAY6BAAptJ1SEN4X3vttRxZuHAhK/DChQt1EeeXgg4BYKBDAJhK1yG9aJFIJGhVmI/aSDlDXcR3MKBDABjoEACmynT45ptvenUYacAa6BAABjoEgKl0HY4p4fEET0uWLBGrW7dupVU8OwRgJkCHADBVoEPxjRXOu/XWW3fu3ElVQ1EdPH/+PC1DhwBMG+gQAKYKdJjJZNh8ghtvvJHitHrq1Cl39gJAhwAw0CEATBXoUHD58mVROxTyW7VqFQenNw8idAjmOH/VEDrcvn07r5pZAZhLVIcOiwh0CICVj02bNpn5AJhLVJMO9+/ff+ONN4o64tVXX33kyBEzORzQIQCdnZ2mDC3r888/N/MBMJeoDh0ODw/PmzdPf4JI7N2718xaCOgQgGy+CqKZA4A5RhXoUO9Ks3LlShqzjXn22WfNDQKBDgEQ/Ou//qvuwh07dpg5AJhjVIEOaVS2o0eP0uqyZcvqnJcrFi9ezMshgQ4BIHQdmmkAzD0qXYc0KpvQHkd0HZ45c6YOY5YCMC2gQwB0Kl2HxiBtY24djmHMUgCmC3QIgE5163B0dLQOY5YCMC1+/etfkwuPHTtmpgEw96h0HY45o88MDQ3Rqq7Du+++G88OAZg2qBoCwFSBDrdt20ZGzGQyY44OR0ZGaJyaBQsWmBsEAh0CwDz44IPJZNKMAjAnqQIdjjk9SFevXj3m6JDhWmNIoMO5wB9AOHbv3m2GgA+vvvqqeZ+B2uIPVaFDwVbFmKZDffzS8ECHcwFqAwSguJj3GagtqkaHxQI6nAuIm6ofgKICHdY80CGoQaBDUHSgw5oHOpxV+vbE4oeGzKiHesvKGKGpvo4LRsgm09UY5YvaZz2WMmOh6ItyFMUXg31maJaADkHRiXT/y++kh8Yu19d6/Hy6Pibj8fVNfSOTepLFx8qkQn5hUwda1c6sxPY2M218sHlzXB7oydahL8xEg4l0m3nE8cGm9Q1WrL69y/2Fnhpv3txgrWnouTDhik9mmuL1sbXxPncpNjmSjq+N1cebMlOuuM7gWx0Na6z6eMLYduB4e0x+tIOuqEPucjm0b0+IYPMLPUY8GOhwVhG3ZJ//rUDE1U1t6HDoUNwdyFGpOsyI/NAhqBki3f/iO9m2N5l0/9d52tHG1Dip62BXT/pkuvXJBrGcfD8nldyxwukwuU5sEWveLY9CiuV9pbbI9VhDXCQJ08jlLUE7lDm0I1LxEm9u6z7cpk65wU6YkAVCbHNrarfM0LB/wI6PpFT+9oPbN4mF5jfG9f0070s1/z95Pj122EWjOvO2w91tzVLeDXvt8kN9OqvjuP3rwb1RtnObjGqBcZkpFu85mVbZnRMOAXQ4q1hWkxnS6Nuj7oYT3ZZHh96bgIEOvVjQISg2ke7/Rs9XOMeXvZZbfoQIdjuSyB0rjA7fTxrn1r5WBBpp2dLUqJC2SJ52hQhL0WbpOpSZe7905aE6rlhoOs5Oy2UTC+1nnfDUgFhVrWFyYYBrAmfbLc/FHD/mLsfUVRJHmnijWY93bxNrrbQsNxDi2yZnK+MMqcfkOfIqn3AYoMNZhVpK5a+mnb0cFPcutZ/27dukmjKkeFx/wCkRUbXDKekYZkDd5roO5a+hdfa90vdCgnPGNnMjg0uHnMHK3U/yEFRDdcflWckfsWY8O3Fa3txELN7CmYmwd2JRsaBDUGwsTwkeQIAOVXldb0bd5I4VRocij/+5iaSDn5jBvFDTolSr/xFFYuMxYcEhy/1jV8aFdRyH6fHk+9nJE63uM8z9VrYkSS3JQX0ocaSO9e4M6TbeVfOWNlrQdz7xVovFvwBUFZZ/ZBQEOpxFPmqnltLx40363899o2S9OhzYXx/bI28e+XDgsU4KqgYEOX056zDzRgu7MKt22+3M52rJlhRqRs/psEHLMHiosV4dgu7UdqdVRxyl/SNalGfV8Ykdb4xZqVG1NN6j55e+tPeP2iGoKTzf0yACdCh/avr7hsgdK4wOs9kmagVduyn1ltNo6ZB0fts27UwaSXkJ0OG4qqjJz6VcpX9AWQaJAsRTT7WUJqndy4in/C6QolmetazkyT3r55PP/UYkvS8hj6doPxl4GDfQ4ewhfhU6i5P895vsNX43Zb06bHQaIuSdsS6ppUhIhxPGjfhRu14B1X6dOTr8QmqMM2Rzt5TUWC56Opl4ic7F1Vgqdqh+JKpmmbXtHM+OcMMFdAhqCs/3NAhqxzOgJLlk//SUyO8t48Q5c0gdClL7pKsIp5HGITPQ1JBr8Ak2hK8O1UNBu+HR4yRbWvl0KD6U0mGuAZPiotboBz3vpB43tmgZj4mzhg4nZMOstSbhPDuM5ZIKAR3OGjkFCgb21dOPI0tvardx61C2P+T60XSrB9dEe1oKiXQo6oXiH+6dJu4/990m96nuKVuH9lZu6E639HtL3Hz2vejSobjv+RGCF9rSgg5BDeHc2KFo9BTZjPzixZJm1F3u544VWoc6nUonrr6qzNSE/Io+bDcyecmrw8GjTW6vmD/Z4yJ5b59Xk5ZqXPX0b5CFod285EHUdGPbcidgns+FDu8fQo+I5dYTuY/eu9PSy89goMPZQlTX9FpUdkjekePd3j+tcasN7K+v32c2gGQnx9s2yzt+yBFblnpIO3XH8WONVHuzGZW3qVp3aoee33EO0XQoj203wxpAh6Cm8Pm+5CdAh0NHN1n5XDVtHcpaoatsyWo/f0VVqdmdZHY2MTD1I/KbXTezXp9Zdvcc45mik81wmHrEmPeJnrc+p3yWO9uhQ9K8WrpE37lY7hzJJXlMHAR0OEt0rHf9ZsmqP5u8L/Pc6y4dxrWeXSK+6Si/tih9k55y/b3FgvOob4CeLBIdD1vO03t+dujWnjjQevoNFU2HfXtcX5XJ00l9P1WkwyuvvFIfC1fwrW9964MPPjDzlZi//OUvfAJm2hzg97//fciP/+///u+UTWxippUG4/sSTIAOs1Tox0whidj0dGj0RRBkXnKVCfzIn6gXB2/J+xNWYuiwb4/sD0C99nTkIZ1+DPK3viN4sfP6Z9IUpmeNtCwW2tL2Xnrkg8Fc6cTII8USZlTVGfhVRZEntqvXlcGtQ3EC1sMdvCovhPlbwRfocJaQf1F3RP0OsnryvBWr61C2bHACmW/T9rb08Q61uXylRtdhp/zdl7v/xJ2TeitNDxV67F9Mua406kaPdRxP93QdjOW6I0fTYdb5IOmT6Tb1plGDnV/+MIzv6PT+Cp4FrCg6fO+997gI9mLmLjHQYciPX/k69L53mNzLEpqgb03ycDe/dyi+jGmnvpU7lvgCrm107yRPOye9mdewvklkSMSlEfhFDmo4lX3pdifl2/Rq2b21C5cOp+RzuPotba4TeEP9Iqf3DuPNVLwY7x3GNrd27ExYnvcOEzs7WlWzFr93qM4nmVXPjyzPRaPf/vTp2rt6qFeQvaWGKzguq57Wmk09J+33FAPe+jeADkENYoXWoaj/cfn7L//yL++8844I7t27l4MLFy40tykl0GHIj1/hOgTVCHQIapDwOnz++eepVN2yZYseP3nyJJfL7777rp4EKgHoEBQd6BBUH+Keef31182oRngdcqn66KOPGknXXHMNJXV1dRlJtNVXvvKVn/3sZx9++KGRypw9e/b73//+FVdc8dBDD5lp0fnzn//8ox/9SBz3G9/4xi9+8YszZ86YOfr7T506FYvF6tSDzz179pjJhRCHuOGGG772ta8FbysuvjjET3/6U/EBOSiWn3jiCREXn/f+++9/7733tC2KgLjm4sTE/js7O2mV/jqGDsVpiF82Ii4y//znP897lYgPPvjg7//+78UfsaWlxUzLR7AO//M//zM4A6h8oENQfYh7ZuXKlZZCaOy///u/vRnMwsyHnp4eKlUJUT565ceIolaUnnp+YsWKFZyHm/uWLFmi51m4cCEtCKVpu+wXh6O4sEu/T2OpMC4HDXI76u830xRf//rX9TwGfLaHDh1ybyd58MEHOafYT53a2/e+9z3OQDrs7u7miI7wIttILFOQPibD8a1bt/b7NJbyJdL5x3/8R1pgHYpj8d50fvKTn/CuxM8XCsbjcc4g/uicIQCv7cTf5b777qP7kDAygOoCOgTVh14AMa2trXoGszDz5zvf+Q6XjIyoXYmqkpHzhz/8IWcQReHbb79N9RUBV6f0Ap0RztafR+qVqltvvZWCYm/9Pjr85je/SZGbbrqpr6+vvb2d8/BJiq8SRf72b/9W1Mz0PAH1V+Nsjxw5IoL8oeq0cyAd6ohqKCVxRNhIHOudd94R50ARfvIqbMfZeJ/6ttSJN68OOSJ2K3Z+9OhRjtRpOuS/I2n4rbfe4t7C9Ln6NR3qiEKQjxWApdnul7/8pXH7EZwBVCNzUYdPgCrHLIQ0qLJoRdGhX52vThWsek6O66akGsnf/M3f0KpeoL/++uucTRyF40KNFORqH1dQvDrk+quollGkX+vsc/fdd1OEVvk0+p0mzbp87cCMfrZ686bYDwXF0SnCOhTXirP1u/si6Zpfvnw5BenD6tk4D/fpvfnmmyni1SFHxG8C3lCvLrMOOXLq1CmK8DXny6vrMOpbNOKmEjtcu1YOj+2HeaeCquLBBx+cczr8CahyzEJIY82aNe+//74VRYeEqA5yQakjinXOQxHDkatXr6Y46cRboDP0VE9w/fXXU2Tnzp0UYUF6dZhIJGj10KFDFPHCzZUbN27U4xRctGiRHtThsxWVVD3OT+ZEGUER1uHzzz+fN6dY0OOiskvxb3/72xQRzqMIdd8VCE9ThB4H9ue7esL3tMo1PGLFihUUN3R4zTXX6Nm48k2q1nWoZwuDuKn+9Kc/GfebgXmngqpCfJfnnA712jGoRsxCyLJEmWhkMAuzKNxzzz1caAqEkPpVLxU96IV05S3QGb2CSBFa1p9deXXIzyBFEmczYCf5YW7gwGdryIxPg2ufrENq1GUCTo/idc7RuYL43e9+t1+r4XHVsD/f1ePjcp2PMLrS6NctL+IXQ/+MdajfY7/97W/p3hOXiO9DPQOoOuZiY6l5DUC1waWPYGoqz0u21sx0SHBzH9VvCuqQymVvga7DFURRQ+KcXDXsL58Om5ub9fh//dd/UdyrQ0NLAadH8Trt6FxB7Ovr43PmqmF/vqvnd9yoOqQeUkXUIUEt84yZDKoK6BBUH5anOmgQUoe64cy0/v4333yTkrhzJq0GtD325yvQdbgJ8Yknnrjxxhu92bw6XLlyJa0GdHn1s1pBeMN/+qd/0uPc0VT4gyJ+Wrr//vspbjRmclVYf5z52muvUfD555+nHRotz96rxx1ZhaH1nCw20iH/Kanq6UfRdci0tsox9M0oqCqgQ1CDhNRhv1aDefnll40k7q7CJSxn1vtqXn/99aIo5CZEb4FuQG9cfPWrX82bzatDPg39FQWjZ4qoa9KyLgMRFKtbt241BKbjd7Zci+UHln46FBak+Pe//309nve0+52eR7w3o5uP93yeUO8yenNyZx/SYX++yqjguuuua2tr479O6XQIagDoENQg4XWov5Dwta99TVRf+lUlRlQBOc69K5ctW8bB9xRcrP/EebnNW6AbcAWRoAeTjFeH/dorBPQSxYsvvsh5uKVx48aNFLnyyivfeust/W2EN954g3dloJ+tQFyNfvc7FZzTT4f9gS9aeF/p4woiYaTmvXrc7zf4RQv9tPv6+sR15g1FOUN5oEMQAHQIapDwOuzXnhHmZeXKlZxTlPV5X/QWHuU8eQt0A34lv87T3T+vDvU+OAbapjkt6RitkQZ8tnkvwqZNmzhngA6Fkt3b2Qgb6a9eMHoeIynv1cs7xvpNN91EC6zDvNnq3G9oQIcgAOgQ1CCRdCi47777tPIzR16X3HnnnXoeURvTU/MW6AbckHjjjTcaSXl12K9eIjRMvGTJEmMEMuED4wXKm2++Oa+QGD5b4Yne3l79EMlkUs8ZoMN+NSIMd5MhjNcTdTgP99Nh/K7eU089xfE6VaXmC8U67Fe/G4JPAzoEAUCHoAaJqsN+5ZINGzZ84xvfEAXldddd99BDDxV91M0KRNehmQbcQIc1D3QIapBp6HBuAh2GBzqseaBDUINAhyGBDsMDHdY80CGoQaDDkECH4YEOax7oENQg0GFIoMPwQIc1T5l1+Morr8yyDjdu3GheA1BzQIeg6ECHNc+5c+d27dplOqOUiJtKSDBLOsxkMrOsQ9zTcwHoEBQdFB1zgdn3kZBglnRIh9+3b5+ZqzS8/vrruKfnAtAhKDooOuYC4q985swZ0xylQYiPbypbh+++++6sCVkc6NChQ7mPDmoU6BAUHehwLrBjx47Z9JHQHx3X1iEhErZu3Xr58mVziyKxZs0a3M1zB+gQFB0UIHOES5cuib/1Qw89ZFqkSAjNCdkZt5NLh5988olVSrZs2aIfDtQ25p8fgGJg3megdtm4caP55y8qQnn64Vw6ZM6ePfuHonLq1Kn/+Z//MQ8DahrzJgBgxrz66qvmfQZqmr/+9a/vvPOOeR/MDCE48zCK/DoEAAAA5hT/HyGvsvMX1bPhAAAAAElFTkSuQmCC>

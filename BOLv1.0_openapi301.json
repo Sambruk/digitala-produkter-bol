@@ -1,0 +1,1459 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "BOL",
+    "description": "API for Order and Delivery (of digital educational resources)",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://bol.example.com"
+    }
+  ],
+  "paths": {
+    "/v1/orders/create": {
+      "post": {
+        "tags": [ "BOL 1.0" ],
+        "summary": "Create Order",
+        "description": "Used by the client to place an order at the service provider. The service provider is expected to reply directly. For backorders the service provider can make an asynchronous call to the URL specified in replyToUrl segment. Both scenarios expect to receive the same JSON. During asynchronous replies only order lines that have been updated should be sent. The status 'delivered' is final and can not be updated. If a service provider needs more time to process the order than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the order was delivered, backordered or if the order processing failed. * If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the order.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/assignments/create": {
+      "post": {
+        "tags": ["BOL 1.0"],
+        "summary": "Create Assignment",
+        "description": "Used by the client to do one or more assignments of a license to a user. If a service provider needs more time to process the assignment than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the assignment was assigned, unassigned or failed. *If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the assignment.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Assignment created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/licenses": {
+      "post": {
+        "tags": ["BOL 1.0"],
+        "summary": "Get User Licenses",
+        "description": "Used by the client to get which licenses/articles are assigned to a specific user.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLicensesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User licenses retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserLicensesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/school-units/users/licenses": {
+      "post": {
+        "tags": ["BOL 1.0"],
+        "summary": "Get School Unit User Licenses",
+        "description": "Used by the client to get which licenses/articles are assigned to which users for a specific school unit.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolUnitUserLicensesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "School unit user licenses retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolUnitUserLicensesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/school-units/licenses": {
+      "post": {
+        "tags": ["BOL 1.0"],
+        "summary": "Get School Unit Licenses",
+        "description": "Used by the client to get license status per article for specific school units.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SchoolUnitLicensesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "School unit licenses retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchoolUnitLicensesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OrderRequest": {
+        "required": [
+          "clientId",
+          "serviceProviderId",
+          "clientOrderNumber",
+          "buyer",
+          "orderLines"
+        ],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "clientOrderNumber": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client order number."
+          },
+          "clientOrderReference": {
+            "type": "string",
+            "nullable": true,
+            "description": "Client order reference. Only for information."
+          },
+          "responseUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response url if asynchronous communication is supported by the service provider. URI according to RFC3986."
+          },
+          "buyer": {
+            "required": ["type"],
+            "type": "object",
+            "nullable": false,
+            "description": "An organization or a private person.",
+            "properties": {
+              "type": {
+                "$ref": "#/components/schemas/BuyerTypeEnum"
+              },
+              "organizationNumber": {
+                "type": "string",
+                "nullable": true,
+                "description": "Organization number. Not mandatory if private purchase."
+              },
+              "name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Name of legal organization. Not mandatory if private purchase."
+              },
+              "address": {
+                "type": "string",
+                "nullable": true,
+                "description": "Address."
+              },
+              "postalCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Postal code."
+              },
+              "city": {
+                "type": "string",
+                "nullable": true,
+                "description": "City."
+              },
+              "countryCode": {
+                "type": "string",
+                "nullable": true,
+                "description": "Country code in ISO 3166 Alpha-2 code."
+              },
+              "reference": {
+                "required": ["firstName", "lastName", "email", "notify"],
+                "type": "object",
+                "nullable": true,
+                "description": "Reference person.",
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "nullable": false,
+                    "description": "First name."
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "nullable": false,
+                    "description": "Last name."
+                  },
+                  "email": {
+                    "type": "string",
+                    "nullable": false,
+                    "description": "Email address."
+                  },
+                  "notify": {
+                    "type": "boolean",
+                    "nullable": false,
+                    "description": "Should the service provider notify (e-mail) the reference person of the delivery."
+                  }
+                }
+              },
+              "school": {
+                "required": ["idSource", "id", "name"],
+                "type": "object",
+                "nullable": true,
+                "description": "The school that receives the articles of the order.",
+                "properties": {
+                  "idSource": {
+                    "$ref": "#/components/schemas/SchoolIdSourceEnum"
+                  },
+                  "id": {
+                    "type": "string",
+                    "nullable": false,
+                    "description": "School id. The service provider must save this id on the data even if the data is mapped to another school at the service provider. The client must be able to query for data on this id."
+                  },
+                  "name": {
+                    "type": "string",
+                    "nullable": false,
+                    "description": "School name."
+                  }
+                }
+              }
+            }
+          },
+          "orderLines": {
+            "type": "array",
+            "description": "Order lines, one for each article.",
+            "items": {
+              "required": ["clientOrderLineId", "articleNumber", "quantity"],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientOrderLineId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The client's unique id for the order line."
+                },
+                "articleNumber": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The service provider's id on the article, often the article number."
+                },
+                "quantity": {
+                  "type": "number",
+                  "nullable": false,
+                  "description": "Quantity."
+                },
+                "fromDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "format": "date",
+                  "description": "Date when the license(s) will start to apply. Can be used if the license is not to take effect immediately upon ordering. If the service provider supports it, they must reply with backordered and send with the date in the backorder. If the service provider does not support it, they must respond with 'failed'."
+                },
+                "duration": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "License length if the article has an optional floating license length."
+                },
+                "durationUnit": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Time unit for specified license duration."
+                },
+                "unitPrice": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Unit price (ex. VAT)."
+                },
+                "discountCode": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Discount code specified by the customer when purchasing."
+                },
+                "discountedUnitPrice": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Discounted unit price (ex. VAT)."
+                },
+                "currency": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Currency in which prices are stated."
+                },
+                "bundleArticleNumber": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "If the purchase is part of a product bundle this is the bundle article number."
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientOrderNumber": "C-1234",
+          "clientOrderReference": "",
+          "responseUrl": "https://client.se/api/bol/order",
+          "buyer": {
+            "type": "organization",
+            "organizationNumber": "1234567890",
+            "name": "Kommun Kommunen",
+            "address": "",
+            "postalCode": "",
+            "city": "",
+            "countryCode": "",
+            "reference": {
+              "firstName": "Per",
+              "lastName": "Johansson",
+              "email": "per.johansson@doman.se",
+              "notify": true
+            },
+            "school": {
+              "idSource": "skolverket",
+              "id": "12345678",
+              "name": "Söderskolan"
+            }
+          },
+          "orderLines": [
+            {
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "quantity": 1,
+              "fromDate": "2022-08-01",
+              "duration": 12,
+              "durationUnit": "M",
+              "unitPrice": 50,
+              "discountCode": "SUMMER24",
+              "discountedUnitPrice": 45,
+              "currency": "SEK",
+              "bundleArticleNumber": ""
+            }
+          ]
+        }
+      },
+      "OrderResponse": {
+        "required": [
+          "clientId",
+          "serviceProviderId",
+          "clientOrderNumber",
+          "orderLines"
+        ],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "clientOrderNumber": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client order number. Should be the same that was sent in the request."
+          },
+          "orderLines": {
+            "type": "array",
+            "description": "Order lines. Should correspond to order lines sent in the request.",
+            "items": {
+              "required": [
+                "clientOrderLineId",
+                "articleNumber",
+                "quantity",
+                "status"
+              ],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientOrderLineId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The client's unique id for the order line."
+                },
+                "articleNumber": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The service provider's id on the article, often the article number."
+                },
+                "quantity": {
+                  "type": "number",
+                  "nullable": false,
+                  "description": "Quantity."
+                },
+                "deliveryDate": {
+                  "type": "string",
+                  "format": "date",
+                  "nullable": true,
+                  "description": "Delivery date in case of a backorder."
+                },
+                "validFromDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "License valid from date.",
+                  "format": "date"
+                },
+                "validToDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "License valid to date.",
+                  "format": "date"
+                },
+                "unitPrice": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Unit price (ex. VAT)."
+                },
+                "discountedUnitPrice": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "Discounted unit price (ex. VAT)."
+                },
+                "currency": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Currency in which prices are stated."
+                },
+                "licenseKeys": {
+                  "type": "array",
+                  "description": "The license keys that should be used when assigning. If the service provider does not manage license keys this is not specified.",
+                  "items": {
+                    "type": "string",
+                    "nullable": false
+                  }
+                },
+                "status": {
+                  "$ref": "#/components/schemas/OrderLineStatusEnum"
+                },
+                "errorMessage": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Detailed information as to why order line has status 'failed'"
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientOrderNumber": "C-1234",
+          "orderLines": [
+            {
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "quantity": 1,
+              "deliveryDate": "2022-08-01",
+              "validFromDate": "2022-08-01",
+              "validToDate": "2023-08-01",
+              "unitPrice": 50,
+              "discountedUnitPrice": 45,
+              "currency": "SEK",
+              "licenseKeys": [],
+              "status": "delivered",
+              "errorMessage": ""
+            }
+          ]
+        }
+      },
+      "AssignmentRequest": {
+        "required": ["clientId", "serviceProviderId", "school", "assignments"],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "responseUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response url if asynchronous communication is needed."
+          },
+          "school": {
+            "required": ["idSource", "id"],
+            "type": "object",
+            "nullable": false,
+            "description": "The school where the users and the licenses to be assigned are located.",
+            "properties": {
+              "idSource": {
+                "$ref": "#/components/schemas/SchoolIdSourceEnum"
+              },
+              "id": {
+                "type": "string",
+                "nullable": false,
+                "description": "School id."
+              }
+            }
+          },
+          "assignments": {
+            "type": "array",
+            "description": "Assignments.",
+            "items": {
+              "required": [
+                "clientAssignmentId",
+                "freeTrial",
+                "articleNumber",
+                "clientOrderLineId",
+                "user"
+              ],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientAssignmentId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Unique assignment id within the request to map to the assignment in the response. Can be a running number 1, 2, 3 ..."
+                },
+                "freeTrial": {
+                  "type": "boolean",
+                  "nullable": false,
+                  "description": "If true, the user should be assigned a free evaluation license."
+                },
+                "articleNumber": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Article number."
+                },
+                "licenseKey": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Entered if the service provider responded with license key(s) in /v1/orders/create, otherwise assignment can be handled with only article number."
+                },
+                "clientOrderLineId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The client's unique id for the order line with the license to be assigned."
+                },
+                "user": {
+                  "required": ["idSource", "id"],
+                  "type": "object",
+                  "nullable": false,
+                  "description": "The user to assign.",
+                  "properties": {
+                    "idSource": {
+                      "$ref": "#/components/schemas/UserIdSourceEnum"
+                    },
+                    "id": {
+                      "type": "string",
+                      "nullable": false,
+                      "description": "User id."
+                    }
+                  }
+                },
+                "assignedByGroups": {
+                  "type": "array",
+                  "description": "The groups through which a user was assigned the license. The assignment is individual, but the service provider may choose to use this information in its environment.",
+                  "items": {
+                    "required": ["idSource", "id", "name"],
+                    "type": "object",
+                    "nullable": false,
+                    "properties": {
+                      "idSource": {
+                        "$ref": "#/components/schemas/GroupIdSourceEnum"
+                      },
+                      "id": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Group id."
+                      },
+                      "groupName": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Group name."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "responseUrl": "https://client.se/api/bol/assignment",
+          "school": {
+            "idSource": "skolverket",
+            "id": "12345678"
+          },
+          "assignments": [
+            {
+              "clientAssignmentId": "1",
+              "freeTrial": false,
+              "articleNumber": "1234567890123",
+              "licenseKey": "",
+              "clientOrderLineId": "12345",
+              "user": {
+                "idSource": "client",
+                "id": "user123"
+              },
+              "assignedByGroups": [
+                {
+                  "idSource": "client",
+                  "id": "group123",
+                  "groupName": "Group A"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "AssignmentResponse": {
+        "required": ["clientId", "serviceProviderId", "assignments"],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "assignments": {
+            "type": "array",
+            "description": "The assignment lines that have been processed.",
+            "items": {
+              "required": ["clientAssignmentId", "articleUrl", "status"],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientAssignmentId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The assignment id that corresponds to the one in the request."
+                },
+                "validFromDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "License valid from date.",
+                  "format": "date"
+                },
+                "validToDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "License valid to date.",
+                  "format": "date"
+                },
+                "articleUrl": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Url to access the article. If an article-specific link cannot be specified, a general link is specified."
+                },
+                "status": {
+                  "$ref": "#/components/schemas/AssignmentStatusEnum"
+                },
+                "errorMessage": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Error message if failed."
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "assignments": [
+            {
+              "clientAssignmentId": "1",
+              "validFromDate": "2022-08-01",
+              "validToDate": "2023-08-01",
+              "articleUrl": "https://serviceprovider.se/article/1234567890123",
+              "status": "assigned",
+              "errorMessage": ""
+            }
+          ]
+        }
+      },
+      "UserLicensesRequest": {
+        "required": ["clientId", "serviceProviderId", "user"],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "user": {
+            "required": ["idSource", "id"],
+            "type": "object",
+            "nullable": false,
+            "description": "The user for whom the licenses are being requested.",
+            "properties": {
+              "idSource": {
+                "$ref": "#/components/schemas/UserIdSourceEnum"
+              },
+              "id": {
+                "type": "string",
+                "nullable": false,
+                "description": "User id."
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "user": {
+            "idSource": "client",
+            "id": "user123"
+          }
+        }
+      },
+      "UserLicensesResponse": {
+        "required": ["clientId", "serviceProviderId", "schools"],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "schools": {
+            "type": "array",
+            "description": "Schools to which the user belongs.",
+            "items": {
+              "required": ["idSource", "id", "assignedLicenses"],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "idSource": {
+                  "$ref": "#/components/schemas/SchoolIdSourceEnum"
+                },
+                "id": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "School id."
+                },
+                "assignedLicenses": {
+                  "type": "array",
+                  "description": "Articles that the user has at school. Returns only licenses ordered by the client.",
+                  "items": {
+                    "required": ["articleNumber", "articleName", "articleUrl"],
+                    "type": "object",
+                    "nullable": false,
+                    "properties": {
+                      "articleNumber": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Article number."
+                      },
+                      "licenseKey": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "License key if it exists."
+                      },
+                      "articleName": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Name of the article that can be displayed to the user."
+                      },
+                      "label": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Label on the article that can be displayed to the user. For example, 'Demo', 'Förhandstitt', 'Extramaterial'."
+                      },
+                      "validFromDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "License valid from date.",
+                        "format": "date"
+                      },
+                      "validToDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "License valid to date.",
+                        "format": "date"
+                      },
+                      "articleUrl": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Url to access the article. If an article-specific link cannot be specified, a general link is specified."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "schools": [
+            {
+              "idSource": "skolverket",
+              "id": "12345678",
+              "assignedLicenses": [
+                {
+                  "articleNumber": "1234567890123",
+                  "licenseKey": "ABC-DEF-GHI",
+                  "articleName": "Math Textbook",
+                  "label": "Demo",
+                  "validFromDate": "2022-08-01",
+                  "validToDate": "2023-08-01",
+                  "articleUrl": "https://serviceprovider.se/article/1234567890123"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "SchoolUnitUserLicensesRequest": {
+        "required": ["clientId", "serviceProviderId", "school"],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "school": {
+            "required": ["idSource", "id"],
+            "type": "object",
+            "nullable": false,
+            "description": "The school for which the licenses are being requested.",
+            "properties": {
+              "idSource": {
+                "$ref": "#/components/schemas/SchoolIdSourceEnum"
+              },
+              "id": {
+                "type": "string",
+                "description": "School id."
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "school": {
+            "idSource": "skolverket",
+            "id": "12345678"
+          }
+        }
+      },
+      "SchoolUnitUserLicensesResponse": {
+        "required": ["clientId", "serviceProviderId"],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "users": {
+            "type": "array",
+            "description": "Users and their assigned licenses.",
+            "items": {
+              "required": ["idSource", "id"],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "idSource": {
+                  "$ref": "#/components/schemas/UserIdSourceEnum"
+                },
+                "id": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "User id."
+                },
+                "assignedLicenses": {
+                  "type": "array",
+                  "description": "Assigned licenses to the user. Returns only licenses ordered by the client.",
+                  "items": {
+                    "required": [
+                      "clientOrderLineId",
+                      "articleNumber",
+                      "articleName",
+                      "articleUrl"
+                    ],
+                    "type": "object",
+                    "nullable": false,
+                    "properties": {
+                      "clientOrderLineId": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "The client's unique id for the order line."
+                      },
+                      "articleNumber": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Article number."
+                      },
+                      "licenseKey": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "License key."
+                      },
+                      "articleName": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Name of the article that can be displayed to the user."
+                      },
+                      "label": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Label on the article that can be displayed to the user. For example, 'Demo', 'Förhandstitt', 'Extramaterial'."
+                      },
+                      "validFromDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "License valid from date.",
+                        "format": "date"
+                      },
+                      "validToDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "License valid to date.",
+                        "format": "date"
+                      },
+                      "articleUrl": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Url to access the article. If an article-specific link cannot be specified, a general link is specified."
+                      },
+                      "used": {
+                        "type": "boolean",
+                        "nullable": true,
+                        "description": "If the license has been used. A license is used if the user has opened it. Unknown if not specified."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "unassignedLicenses": {
+            "type": "array",
+            "description": "Unassigned licenses. Returns only licenses ordered by the client.",
+            "items": {
+              "required": [
+                "clientOrderLineId",
+                "articleNumber",
+                "quantity",
+                "articleName"
+              ],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientOrderLineId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Order line id at the client."
+                },
+                "articleNumber": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Article number."
+                },
+                "quantity": {
+                  "type": "number",
+                  "nullable": false,
+                  "description": "Number of licenses."
+                },
+                "licenseKeys": {
+                  "type": "array",
+                  "description": "License keys.",
+                  "items": {
+                    "type": "string",
+                    "nullable": false
+                  }
+                },
+                "articleName": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Name of the article that can be displayed to the user."
+                },
+                "label": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Label on the article that can be displayed to the user. For example, 'Demo', 'Förhandstitt', 'Extramaterial'."
+                },
+                "validFromDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Licenses valid from date.",
+                  "format": "date"
+                },
+                "validToDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Licenses valid to date.",
+                  "format": "date"
+                },
+                "articleUrl": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Url to access the article. If an article-specific link cannot be specified, a general link is specified."
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "users": [
+            {
+              "idSource": "client",
+              "id": "user123",
+              "assignedLicenses": [
+                {
+                  "clientOrderLineId": "12345",
+                  "articleNumber": "1234567890123",
+                  "licenseKey": "ABC-DEF-GHI",
+                  "articleName": "Math Textbook",
+                  "label": "Demo",
+                  "validFromDate": "2022-08-01",
+                  "validToDate": "2023-08-01",
+                  "articleUrl": "https://serviceprovider.se/article/1234567890123",
+                  "used": true
+                }
+              ]
+            }
+          ],
+          "unassignedLicenses": [
+            {
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "quantity": 10,
+              "licenseKeys": [],
+              "articleName": "Science Textbook",
+              "label": "Demo",
+              "validFromDate": "2022-08-01",
+              "validToDate": "2023-08-01",
+              "articleUrl": "https://serviceprovider.se/article/1234567890123"
+            }
+          ]
+        }
+      },
+      "SchoolUnitLicensesRequest": {
+        "required": ["clientId", "serviceProviderId", "fromDate", "schools"],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "fromDate": {
+            "type": "string",
+            "nullable": false,
+            "description": "Include orders placed from this date.",
+            "format": "date"
+          },
+          "toDate": {
+            "type": "string",
+            "nullable": true,
+            "description": "Include orders placed up to this date. If not specified, include orders placed up to now.",
+            "format": "date"
+          },
+          "schools": {
+            "type": "array",
+            "description": "Schools.",
+            "items": {
+              "required": ["idSource", "id"],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "idSource": {
+                  "$ref": "#/components/schemas/SchoolIdSourceEnum"
+                },
+                "id": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "School id."
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "fromDate": "2024-08-01",
+          "toDate": "2025-08-01",
+          "schools": [
+            {
+              "idSource": "skolverket",
+              "id": "12345678"
+            }
+          ]
+        }
+      },
+      "SchoolUnitLicensesResponse": {
+        "required": ["clientId", "serviceProviderId", "schools"],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "schools": {
+            "type": "array",
+            "description": "Schools.",
+            "items": {
+              "required": ["idSource", "id"],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "idSource": {
+                  "$ref": "#/components/schemas/SchoolIdSourceEnum"
+                },
+                "id": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "School id."
+                },
+                "articles": {
+                  "type": "array",
+                  "description": "Valid articles on the school. Returns only articles ordered by the client.",
+                  "items": {
+                    "required": [
+                      "articleNumber",
+                      "articleName",
+                      "totalLicenses",
+                      "assignedLicenses"
+                    ],
+                    "type": "object",
+                    "nullable": false,
+                    "properties": {
+                      "articleNumber": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Article number."
+                      },
+                      "articleName": {
+                        "type": "string",
+                        "nullable": false,
+                        "description": "Article name."
+                      },
+                      "totalLicenses": {
+                        "type": "number",
+                        "nullable": false,
+                        "description": "Total quantity of licenses ordered by the client."
+                      },
+                      "unassignedLicenses": {
+                        "type": "number",
+                        "nullable": false,
+                        "description": "Total quantity of unassigned licenses ordered by the client."
+                      },
+                      "assignedLicenses": {
+                        "type": "number",
+                        "nullable": false,
+                        "description": "Total quantity of assigned licenses ordered by the client."
+                      },
+                      "usedLicenses": {
+                        "type": "number",
+                        "nullable": true,
+                        "description": "Total quantity of used licenses ordered by the client. A license is used if the user has opened it. Unknown if not specified."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "schools": [
+            {
+              "idSource": "skolverket",
+              "id": "12345678",
+              "articles": [
+                {
+                  "articleNumber": "1234567890123",
+                  "articleName": "Math Textbook",
+                  "totalLicenses": 100,
+                  "unassignedLicenses": 20,
+                  "assignedLicenses": 80,
+                  "usedLicenses": 50
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true,
+            "description": "A URI reference that identifies the problem type. This specification encourages that, when dereferenced, it provide human-readable documentation for the problem type."
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "description": "A short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization."
+          },
+          "status": {
+            "type": "integer",
+            "nullable": true,
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem."
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true,
+            "description": "A human-readable explanation specific to this occurrence of the problem."
+          },
+          "errors": {
+            "type": "object",
+            "nullable": true,
+            "description": "A list of specific errors encountered during the request processing.",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "example": {
+          "type": "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+          "title": "Bad Request",
+          "status": 400,
+          "detail": "Order lines must contain at least one item",
+          "errors": {
+            "orderLines": "Order lines must contain at least one item"
+          }
+        }
+      },
+      "BuyerTypeEnum": {
+        "type": "string",
+        "description": "Type of buyer. Possible values:\n- `organization`: Buyer is an organization.\n- `private`: Private buyer.",
+        "enum": ["organization", "private"]
+      },
+      "SchoolIdSourceEnum": {
+        "type": "string",
+        "description": "The source system of the school id. Possible values:\n- `skolverket`: School unit code from Skolverket.\n- `client`: Id specified by the client.\n- `serviceProvider`: Id specified by the service provider.\n- `other`: Value agreed by the client and the service provider.",
+        "enum": ["skolverket", "client", "serviceProvider", "other"]
+      },
+      "OrderLineStatusEnum": {
+        "type": "string",
+        "description": "Order line status. Possible values:\n- `beingProcessed`: The order is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `backordered`: Backordered, the service provider can send with an expected delivery date in deliveryDate. In the same way as in beingProcessed, the client expects to receive a call to responseUrl.\n- `delivered`: The order is delivered and the retailer can find the license keys that can be used for the assignment in licenseKeys.\n- `failed`: Failed, order has not gone through. The service provider can send more detailed information in the errorMessage.",
+        "enum": ["beingProcessed", "backordered", "delivered", "failed"]
+      },
+      "UserIdSourceEnum": {
+        "type": "string",
+        "description": "The source system of the user id. Possible values:\n- `client`: Id specified by the client.\n- `serviceProvider`: Id specified by the service provider.\n- `eppn`: eduPersonPrincipalName.\n- `egil`: EGIL-klientens SCIM-id.\n- `ss12000`: SS12000 uuid.\n- `google`: Google-id.\n- `microsoft`: Microsoft-id.\n- `email`: Email address.\n- `other`: Other type of id.",
+        "enum": [
+          "client",
+          "serviceProvider",
+          "eppn",
+          "egil",
+          "ss12000",
+          "google",
+          "microsoft",
+          "email",
+          "other"
+        ]
+      },
+      "GroupIdSourceEnum": {
+        "type": "string",
+        "description": "The source system of the group id. Possible values:\n- `client`: Id specified by the client.\n- `serviceProvider`: Id specified by the service provider.\n- `egil`: EGIL-klientens SCIM-id.\n- `ss12000`: SS12000 uuid.\n- `google`: Google-id.\n- `microsoft`: Microsoft-id.\n- `other`: Other type of id.",
+        "enum": [
+          "client",
+          "serviceProvider",
+          "egil",
+          "ss12000",
+          "google",
+          "microsoft",
+          "other"
+        ]
+      },
+      "AssignmentStatusEnum": {
+        "type": "string",
+        "description": "Assignment status. Possible values:\n- `beingProcessed`: The assignment is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `assigned`: The assignment is complete and the license is ready to use.\n- `unassigned`: The unassignment request succeeded and the user no longer has the license.\n- `failed`: The assignment or unassignment has not gone through. The service provider can send more detailed information in the errorMessage.",
+        "enum": ["beingProcessed", "assigned", "unassigned", "failed"]
+      }
+    }
+  }
+}
