@@ -17,7 +17,7 @@
           "BOL 2"
         ],
         "summary": "Activate hybrid licenses",
-        "description": "TODO",
+        "description": "Makes the license available for the end user. Can be used after the analogue articles have been delivered.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -68,7 +68,7 @@
           "BOL 2"
         ],
         "summary": "Initiate return of hybrid licenses",
-        "description": "TODO",
+        "description": "Reseller checks return availability with this call to the supplier. Supplier responds with which licenses that can be returned - if any. Licenses that can be returned is marked at the supplier and can not be used by a user and can not be assigned.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -119,7 +119,7 @@
           "BOL 2"
         ],
         "summary": "Finalize return of hybrid licenses",
-        "description": "TODO",
+        "description": "Sets which licenses to be returned or rejected. Returned licenses should be available for reselling by referencing original order. Rejected licenses should be set as available again for the end user.",
         "requestBody": {
           "content": {
             "application/json": {
