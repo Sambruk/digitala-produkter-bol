@@ -3,7 +3,7 @@
   "info": {
     "title": "BOL",
     "description": "API for Order and Delivery (of digital educational resources)",
-    "version": "1.0"
+    "version": "1.1"
   },
   "servers": [
     {
@@ -11,6 +11,153 @@
     }
   ],
   "paths": {
+    "/v1/hybrids/activate": {
+      "post": {
+        "tags": ["BOL 1", "hybrids"],
+        "summary": "Activate hybrid licenses",
+        "description": "Makes the license available for the end user. Can be used after the analogue articles have been delivered.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "activation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/hybrids/return/initiate": {
+      "post": {
+        "tags": ["BOL 1", "hybrids"],
+        "summary": "Initiate return of hybrid licenses",
+        "description": "Reseller checks return availability with this call to the supplier. Supplier responds with which licenses that can be returned - if any. Licenses that can be returned is marked at the supplier and can not be used by a user and can not be assigned.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitiateReturnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "return initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitiateReturnResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/hybrids/return/finalize": {
+      "post": {
+        "tags": ["BOL 1", "hybrids"],
+        "summary": "Finalize return of hybrid licenses",
+        "description": "Sets which licenses to be returned or rejected. Returned licenses should be available for reselling by referencing original order. Rejected licenses should be set as available again for the end user.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizeReturnRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "return initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinalizeReturnResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/orders/create": {
       "post": {
         "tags": [ "BOL 1.0" ],
@@ -1364,6 +1511,374 @@
           ]
         }
       },
+      "ActivationRequest": {
+        "required": [
+          "activationLines",
+          "buyer",
+          "clientActivationId",
+          "clientId",
+          "clientOrderReference",
+          "serviceProviderId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client id, e.g. goteborgsregionen.se.",
+            "nullable": false
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "description": "Service Provider id, e.g. nok.se.",
+            "nullable": false
+          },
+          "clientActivationId": {
+            "type": "string",
+            "description": "The client's unique Id for this activation.",
+            "nullable": false
+          },
+          "clientOrderReference": {
+            "type": "string",
+            "description": "Client order reference. Reference to order of physical hybrid articles, eg. order number",
+            "nullable": true
+          },
+          "responseUrl": {
+            "type": "string",
+            "description": "Response url if asynchronous communication is supported by the service provider. URI according to RFC3986.",
+            "nullable": true
+          },
+          "buyer": {
+            "$ref": "#/components/schemas/ActivationRequest_buyer"
+          },
+          "activationLines": {
+            "type": "array",
+            "description": "Activation lines, one for each article.",
+            "items": {
+              "$ref": "#/components/schemas/ActivationRequest_activationLines"
+            }
+          }
+        },
+        "description": "Request from client.",
+        "nullable": false,
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientActivationId": "A-1234",
+          "clientOrderReference": "ORDER_NUMBER",
+          "responseUrl": "https://client.se/api/bol/order",
+          "buyer": {
+            "type": "organization",
+            "organizationNumber": "1234567890",
+            "name": "Kommun Kommunen",
+            "address": "",
+            "postalCode": "",
+            "city": "",
+            "countryCode": "",
+            "reference": {
+              "firstName": "Per",
+              "lastName": "Johansson",
+              "email": "per.johansson@doman.se",
+              "notify": true
+            },
+            "school": {
+              "idSource": "skolverket",
+              "id": "12345678",
+              "name": "Söderskolan"
+            }
+          },
+          "activationLines": [
+            {
+              "clientOrderLineId": "12345",
+              "orderRowReference": "2",
+              "articleNumber": "1234567890123",
+              "quantity": 1,
+              "fromDate": "2022-08-01"
+            }
+          ]
+        }
+      },
+      "ActivationResponse": {
+        "required": [
+          "activationLines",
+          "clientActivationId",
+          "clientId",
+          "serviceProviderId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client id, e.g. goteborgsregionen.se.",
+            "nullable": false
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "description": "Service Provider id, e.g. nok.se.",
+            "nullable": false
+          },
+          "clientActivationId": {
+            "type": "string",
+            "description": "The client's unique Id for this activation.",
+            "nullable": false
+          },
+          "activationLines": {
+            "type": "array",
+            "description": "Activation lines. Can be more than the number of requested lines if hybrid article contains more than one digital license.",
+            "items": {
+              "$ref": "#/components/schemas/ActivationResponse_activationLines"
+            }
+          }
+        },
+        "description": "Response from service provider.",
+        "nullable": false,
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientActivationId": "A-1234",
+          "activationLines": [
+            {
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "quantity": 1,
+              "validFromDate": "2022-08-01",
+              "validToDate": "2023-08-01",
+              "licenseKeys": [],
+              "status": "delivered",
+              "errorMessage": ""
+            }
+          ]
+        }
+      },
+      "InitiateReturnRequest": {
+        "required": [
+          "clientId",
+          "licenseLines",
+          "school",
+          "serviceProviderId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client id, e.g. goteborgsregionen.se.",
+            "nullable": false
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "description": "Service Provider id, e.g. nok.se.",
+            "nullable": false
+          },
+          "responseUrl": {
+            "type": "string",
+            "description": "Response url if asynchronous communication is supported by the service provider. URI according to RFC3986.",
+            "nullable": true
+          },
+          "school": {
+            "$ref": "#/components/schemas/InitiateReturnRequest_school"
+          },
+          "licenseLines": {
+            "type": "array",
+            "description": "Licenses to be returned.",
+            "items": {
+              "$ref": "#/components/schemas/InitiateReturnRequest_licenseLines"
+            }
+          }
+        },
+        "description": "Request from client.",
+        "nullable": false,
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientActivationId": "A-1234",
+          "clientOrderReference": "ORDER_NUMBER",
+          "responseUrl": "https://client.se/api/bol/order",
+          "school": {
+            "idSource": "skolverket",
+            "id": "12345678"
+          },
+          "licenseLines": [
+            {
+              "clientReturnId": "1",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234567"
+            },
+            {
+              "clientReturnId": "2",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234566"
+            }
+          ]
+        }
+      },
+      "InitiateReturnResponse": {
+        "required": [
+          "clientId",
+          "licenseLines",
+          "serviceProviderId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client id, e.g. goteborgsregionen.se.",
+            "nullable": false
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "description": "Service Provider id, e.g. nok.se.",
+            "nullable": false
+          },
+          "licenseLines": {
+            "type": "array",
+            "description": "Licenses accepted for return.",
+            "nullable": false,
+            "items": {
+              "$ref": "#/components/schemas/InitiateReturnResponse_licenseLines"
+            }
+          }
+        },
+        "description": "Response from service provider.",
+        "nullable": false,
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "licenseLines": [
+            {
+              "clientReturnId": "1",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234567",
+              "status": "accepted",
+              "errorMessage": ""
+            },
+            {
+              "clientReturnId": "2",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234566",
+              "status": "rejected",
+              "errorMessage": "License is used"
+            }
+          ]
+        }
+      },
+      "FinalizeReturnRequest": {
+        "required": [
+          "clientId",
+          "licenseLines",
+          "school",
+          "serviceProviderId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client id, e.g. goteborgsregionen.se.",
+            "nullable": false
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "description": "Service Provider id, e.g. nok.se.",
+            "nullable": false
+          },
+          "responseUrl": {
+            "type": "string",
+            "description": "Response url if asynchronous communication is supported by the service provider. URI according to RFC3986.",
+            "nullable": true
+          },
+          "school": {
+            "$ref": "#/components/schemas/InitiateReturnRequest_school"
+          },
+          "licenseLines": {
+            "type": "array",
+            "description": "Licenses to be returned.",
+            "items": {
+              "$ref": "#/components/schemas/FinalizeReturnRequest_licenseLines"
+            }
+          }
+        },
+        "description": "Request from client.",
+        "nullable": false,
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientActivationId": "A-1234",
+          "clientOrderReference": "ORDER_NUMBER",
+          "responseUrl": "https://client.se/api/bol/order",
+          "school": {
+            "idSource": "skolverket",
+            "id": "12345678"
+          },
+          "licenseLines": [
+            {
+              "clientReturnId": "1",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234567",
+              "returnAction": "return"
+            },
+            {
+              "clientReturnId": "2",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234566",
+              "returnAction": "reject"
+            }
+          ]
+        }
+      },
+      "FinalizeReturnResponse": {
+        "required": [
+          "clientId",
+          "licenseLines",
+          "serviceProviderId"
+        ],
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "description": "Client id, e.g. goteborgsregionen.se.",
+            "nullable": false
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "description": "Service Provider id, e.g. nok.se.",
+            "nullable": false
+          },
+          "licenseLines": {
+            "type": "array",
+            "description": "Licenses accepted for return.",
+            "nullable": false,
+            "items": {
+              "$ref": "#/components/schemas/FinalizeReturnResponse_licenseLines"
+            }
+          }
+        },
+        "description": "Response from service provider.",
+        "nullable": false,
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "licenseLines": [
+            {
+              "clientReturnId": "1",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234567",
+              "status": "returned"
+            },
+            {
+              "clientReturnId": "2",
+              "clientOrderLineId": "12345",
+              "articleNumber": "1234567890123",
+              "licenseKey": "1234566",
+              "status": "reset"
+            }
+          ]
+        }
+      },
       "ProblemDetails": {
         "type": "object",
         "properties": {
@@ -1403,6 +1918,48 @@
           "detail": "Order lines must contain at least one item",
           "errors": {
             "orderLines": "Order lines must contain at least one item"
+          }
+        }
+      },
+      "ConflictProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference that identifies the problem type. This specification encourages that, when dereferenced, it provide human-readable documentation for the problem type.",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type. It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "A list of specific errors encountered during the request processing.",
+            "nullable": true
+          }
+        },
+        "example": {
+          "type": "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+          "title": "Conflict",
+          "status": 409,
+          "detail": "Request conflict",
+          "errors": {
+            "orderLines": "Request conflict"
           }
         }
       },
@@ -1453,6 +2010,441 @@
         "type": "string",
         "description": "Assignment status. Possible values:\n- `beingProcessed`: The assignment is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `assigned`: The assignment is complete and the license is ready to use.\n- `unassigned`: The unassignment request succeeded and the user no longer has the license.\n- `failed`: The assignment or unassignment has not gone through. The service provider can send more detailed information in the errorMessage.",
         "enum": ["beingProcessed", "assigned", "unassigned", "failed"]
+      },
+      "ActivationLineStatusEnum": {
+        "type": "string",
+        "description": "Activation line status. Possible values:\n- `beingProcessed`: The actiovation is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `delivered`: The activation is delivered and the retailer can find the license keys that can be used for the assignment in licenseKeys.\n- `failed`: Failed, activation has not gone through. The service provider can send more detailed information in the errorMessage.",
+        "enum": [
+          "beingProcessed",
+          "delivered",
+          "failed"
+        ]
+      },
+      "ReturnLineStatusEnum": {
+        "type": "string",
+        "description": "Activation line status. Possible values:\n- `beingProcessed`: The actiovation is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `accepted`: The return request has been accepted.\n- `failed`: The return request has been rejected. The service provider can send more detailed information in the errorMessage.",
+        "enum": [
+          "beingProcessed",
+          "accepted",
+          "rejected"
+        ]
+      },
+      "ReturnLineActionEnum": {
+        "type": "string",
+        "description": "Return line action. Possible values:\n- `return`: Return license to supplier.\n- `reject`: Return rejected by reseller. Supplier should reset license to previous state",
+        "enum": [
+          "return",
+          "reject"
+        ]
+      },
+      "FinalizeReturnLineStatusEnum": {
+        "type": "string",
+        "description": "Return line status. Possible values:\n- `returned`: License has been returned to supplier.\n- `reset`: License return rejected and has been reset to previous state\n- `failed`: The return request has been rejected. The service provider can send more detailed information in the errorMessage.",
+        "enum": [
+          "returned",
+          "rejected",
+          "failed"
+        ]
+      },
+      "ActivationRequest_buyer_reference": {
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "notify"
+        ],
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name.",
+            "nullable": false
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name.",
+            "nullable": false
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address.",
+            "nullable": false
+          },
+          "notify": {
+            "type": "boolean",
+            "description": "Should the service provider notify (e-mail) the reference person of the delivery.",
+            "nullable": false
+          }
+        },
+        "description": "Reference person.",
+        "nullable": true
+      },
+      "ActivationRequest_buyer_school": {
+        "required": [
+          "id",
+          "idSource",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "idSource": {
+            "$ref": "#/components/schemas/SchoolIdSourceEnum"
+          },
+          "id": {
+            "type": "string",
+            "description": "School id. The service provider must save this id on the data even if the data is mapped to another school at the service provider. The client must be able to query for data on this id.",
+            "nullable": false
+          },
+          "name": {
+            "type": "string",
+            "description": "School name.",
+            "nullable": false
+          }
+        },
+        "description": "The school that receives the articles of the order.",
+        "nullable": true
+      },
+      "ActivationRequest_buyer": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/BuyerTypeEnum"
+          },
+          "organizationNumber": {
+            "type": "string",
+            "description": "Organization number. Not mandatory if private purchase.",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of legal organization. Not mandatory if private purchase.",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "description": "Address.",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code.",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "description": "City.",
+            "nullable": true
+          },
+          "countryCode": {
+            "type": "string",
+            "description": "Country code in ISO 3166 Alpha-2 code.",
+            "nullable": true
+          },
+          "reference": {
+            "$ref": "#/components/schemas/ActivationRequest_buyer_reference"
+          },
+          "school": {
+            "$ref": "#/components/schemas/ActivationRequest_buyer_school"
+          }
+        },
+        "description": "An organization or a private person.",
+        "nullable": false
+      },
+      "ActivationRequest_activationLines": {
+        "required": [
+          "articleNumber",
+          "clientOrderLineId",
+          "orderRowReference",
+          "quantity"
+        ],
+        "type": "object",
+        "properties": {
+          "clientOrderLineId": {
+            "type": "string",
+            "description": "The client's unique id for the order line.",
+            "nullable": false
+          },
+          "orderRowReference": {
+            "type": "string",
+            "description": "Referense to order line in original order, eg. row number",
+            "nullable": false
+          },
+          "articleNumber": {
+            "type": "string",
+            "description": "Hybrid article number. Must match article from original order.",
+            "nullable": false
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity.",
+            "nullable": false
+          },
+          "fromDate": {
+            "type": "string",
+            "description": "Date when the license(s) will start to apply. Can be used if the license is not to take effect immediately upon ordering. If the service provider supports it, they must reply with backordered and send with the date in the backorder. If the service provider does not support it, they must respond with 'failed'.",
+            "format": "date",
+            "nullable": true
+          }
+        },
+        "nullable": false
+      },
+      "ActivationResponse_activationLines": {
+        "required": [
+          "articleNumber",
+          "clientOrderLineId",
+          "orderRowReference",
+          "quantity",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "clientOrderLineId": {
+            "type": "string",
+            "description": "The client's unique id for the activation line.",
+            "nullable": false
+          },
+          "orderRowReference": {
+            "type": "string",
+            "description": "Referense to order line in original order, eg. row number.",
+            "nullable": false
+          },
+          "articleNumber": {
+            "type": "string",
+            "description": "The service provider's id on the article, often the article number.",
+            "nullable": false
+          },
+          "quantity": {
+            "type": "number",
+            "description": "Quantity.",
+            "nullable": false
+          },
+          "validFromDate": {
+            "type": "string",
+            "description": "License valid from date.",
+            "format": "date",
+            "nullable": true
+          },
+          "validToDate": {
+            "type": "string",
+            "description": "License valid to date.",
+            "format": "date",
+            "nullable": true
+          },
+          "licenseKeys": {
+            "type": "array",
+            "description": "The license keys that should be used when assigning. If the service provider does not manage license keys this is not specified.",
+            "items": {
+              "type": "string",
+              "nullable": false
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/ActivationLineStatusEnum"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Detailed information as to why actiovation line has status 'failed'",
+            "nullable": true
+          }
+        },
+        "nullable": false
+      },
+      "InitiateReturnRequest_licenseLines": {
+        "required": [
+          "articleNumber",
+          "clientOrderLineId",
+          "clientReturnId",
+          "licenseKey"
+        ],
+        "type": "object",
+        "properties": {
+          "clientReturnId": {
+            "type": "string",
+            "description": "Unique id within the request to map to the return in the response. Can be a running number 1, 2, 3 ...",
+            "nullable": false
+          },
+          "clientOrderLineId": {
+            "type": "string",
+            "description": "The client's unique id for the order line.",
+            "nullable": false
+          },
+          "articleNumber": {
+            "type": "string",
+            "description": "The service provider's id on the article, often the article number.",
+            "nullable": false
+          },
+          "licenseKey": {
+            "type": "string",
+            "description": "License key.",
+            "nullable": false
+          },
+          "userId": {
+            "type": "string",
+            "description": "UserId if assigned to user",
+            "nullable": true
+          }
+        },
+        "nullable": false
+      },
+      "InitiateReturnResponse_licenseLines": {
+        "required": [
+          "articleNumber",
+          "clientOrderLineId",
+          "clientReturnId",
+          "licenseKey",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "clientReturnId": {
+            "type": "string",
+            "description": "Unique id within the request to map to the return in the response. Can be a running number 1, 2, 3 ...",
+            "nullable": false
+          },
+          "clientOrderLineId": {
+            "type": "string",
+            "description": "The client's unique id for the order line.",
+            "nullable": false
+          },
+          "articleNumber": {
+            "type": "string",
+            "description": "The service provider's id on the article, often the article number.",
+            "nullable": false
+          },
+          "licenseKey": {
+            "type": "array",
+            "description": "The license key",
+            "items": {
+              "type": "string",
+              "nullable": false
+            }
+          },
+          "userId": {
+            "type": "string",
+            "description": "UserId if assigned to user",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/ReturnLineStatusEnum"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Detailed information as to why order line has status 'failed'",
+            "nullable": true
+          }
+        }
+      },
+      "FinalizeReturnRequest_licenseLines": {
+        "required": [
+          "articleNumber",
+          "clientOrderLineId",
+          "clientReturnId",
+          "licenseKey",
+          "returnAction"
+        ],
+        "type": "object",
+        "properties": {
+          "clientReturnId": {
+            "type": "string",
+            "description": "Unique id within the request to map to the return in the response. Can be a running number 1, 2, 3 ...",
+            "nullable": false
+          },
+          "clientOrderLineId": {
+            "type": "string",
+            "description": "The client's unique id for the order line.",
+            "nullable": false
+          },
+          "articleNumber": {
+            "type": "string",
+            "description": "The service provider's id on the article, often the article number.",
+            "nullable": false
+          },
+          "licenseKey": {
+            "type": "string",
+            "description": "License key.",
+            "nullable": false
+          },
+          "userId": {
+            "type": "string",
+            "description": "UserId if assigned to user",
+            "nullable": true
+          },
+          "returnAction": {
+            "$ref": "#/components/schemas/ReturnLineActionEnum"
+          }
+        },
+        "nullable": false
+      },
+      "FinalizeReturnResponse_licenseLines": {
+        "required": [
+          "articleNumber",
+          "clientOrderLineId",
+          "clientReturnId",
+          "licenseKey",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "clientReturnId": {
+            "type": "string",
+            "description": "Unique id within the request to map to the return in the response. Can be a running number 1, 2, 3 ...",
+            "nullable": false
+          },
+          "clientOrderLineId": {
+            "type": "string",
+            "description": "The client's unique id for the order line.",
+            "nullable": false
+          },
+          "articleNumber": {
+            "type": "string",
+            "description": "The service provider's id on the article, often the article number.",
+            "nullable": false
+          },
+          "licenseKey": {
+            "type": "array",
+            "description": "The license key",
+            "items": {
+              "type": "string",
+              "nullable": false
+            }
+          },
+          "userId": {
+            "type": "string",
+            "description": "UserId if assigned to user",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/FinalizeReturnLineStatusEnum"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Detailed information as to why order line has status 'failed'",
+            "nullable": true
+          }
+        },
+        "nullable": false
+      },
+      "InitiateReturnRequest_school": {
+        "required": [
+          "id",
+          "idSource"
+        ],
+        "type": "object",
+        "properties": {
+          "idSource": {
+            "$ref": "#/components/schemas/SchoolIdSourceEnum"
+          },
+          "id": {
+            "type": "string",
+            "description": "School id.",
+            "nullable": false
+          }
+        },
+        "description": "The school where the users and the licenses to be assigned are located.",
+        "nullable": false
       }
     }
   }
