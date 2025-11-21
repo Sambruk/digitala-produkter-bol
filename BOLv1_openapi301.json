@@ -160,7 +160,7 @@
     },
     "/v1/orders/create": {
       "post": {
-        "tags": [ "BOL 1.0" ],
+        "tags": [ "BOL 1" ],
         "summary": "Create Order",
         "description": "Used by the client to place an order at the service provider. The service provider is expected to reply directly. For backorders the service provider can make an asynchronous call to the URL specified in replyToUrl segment. Both scenarios expect to receive the same JSON. During asynchronous replies only order lines that have been updated should be sent. The status 'delivered' is final and can not be updated. If a service provider needs more time to process the order than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the order was delivered, backordered or if the order processing failed. * If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the order.",
         "requestBody": {
@@ -209,7 +209,7 @@
     },
     "/v1/assignments/create": {
       "post": {
-        "tags": ["BOL 1.0"],
+        "tags": ["BOL 1"],
         "summary": "Create Assignment",
         "description": "Used by the client to do one or more assignments of a license to a user. If a service provider needs more time to process the assignment than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the assignment was assigned, unassigned or failed. *If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the assignment.",
         "requestBody": {
@@ -248,7 +248,7 @@
     },
     "/v1/users/licenses": {
       "post": {
-        "tags": ["BOL 1.0"],
+        "tags": ["BOL 1"],
         "summary": "Get User Licenses",
         "description": "Used by the client to get which licenses/articles are assigned to a specific user.",
         "requestBody": {
@@ -287,7 +287,7 @@
     },
     "/v1/school-units/users/licenses": {
       "post": {
-        "tags": ["BOL 1.0"],
+        "tags": ["BOL 1"],
         "summary": "Get School Unit User Licenses",
         "description": "Used by the client to get which licenses/articles are assigned to which users for a specific school unit.",
         "requestBody": {
@@ -326,7 +326,7 @@
     },
     "/v1/school-units/licenses": {
       "post": {
-        "tags": ["BOL 1.0"],
+        "tags": ["BOL 1"],
         "summary": "Get School Unit Licenses",
         "description": "Used by the client to get license status per article for specific school units.",
         "requestBody": {
