@@ -3,7 +3,7 @@
   "info": {
     "title": "BOL",
     "description": "API for Order and Delivery (of digital educational resources)",
-    "version": "1.1"
+    "version": "1.2"
   },
   "servers": [
     {
@@ -13,7 +13,7 @@
   "paths": {
     "/v1/hybrids/activate": {
       "post": {
-        "tags": ["BOL 1", "hybrids"],
+        "tags": [ "BOL 1", "hybrids" ],
         "summary": "Activate hybrid licenses",
         "description": "Makes the license available for the end user. Can be used after the analogue articles have been delivered.",
         "requestBody": {
@@ -62,7 +62,7 @@
     },
     "/v1/hybrids/return/initiate": {
       "post": {
-        "tags": ["BOL 1", "hybrids"],
+        "tags": [ "BOL 1", "hybrids" ],
         "summary": "Initiate return of hybrid licenses",
         "description": "Reseller checks return availability with this call to the supplier. Supplier responds with which licenses that can be returned - if any. Licenses that can be returned is marked at the supplier and can not be used by a user and can not be assigned.",
         "requestBody": {
@@ -111,7 +111,7 @@
     },
     "/v1/hybrids/return/finalize": {
       "post": {
-        "tags": ["BOL 1", "hybrids"],
+        "tags": [ "BOL 1", "hybrids" ],
         "summary": "Finalize return of hybrid licenses",
         "description": "Sets which licenses to be returned or rejected. Returned licenses should be available for reselling by referencing original order. Rejected licenses should be set as available again for the end user.",
         "requestBody": {
@@ -209,7 +209,7 @@
     },
     "/v1/assignments/create": {
       "post": {
-        "tags": ["BOL 1"],
+        "tags": [ "BOL 1" ],
         "summary": "Create Assignment",
         "description": "Used by the client to do one or more assignments of a license to a user. If a service provider needs more time to process the assignment than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the assignment was assigned, unassigned or failed. *If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the assignment.",
         "requestBody": {
@@ -246,9 +246,48 @@
         }
       }
     },
+    "/v1/assignments/delete": {
+      "post": {
+        "tags": [ "BOL 1.1" ],
+        "summary": "Delete Assignment",
+        "description": "Used by the client to remove a user from a license. The license should be able to be reassigned to another user if the response is success. Otherwise, the response should be failed, use errorMessage to explain why the unassignment did not go through. If a service provider needs more time to process the assignment deletion than what’s permitted during a http request window AND* the client specified an responseUrl in the request. Then an intermediate response should be returned, which should always be followed by an additional response posted to the supplied responseUrl, telling the client if the license was unassigned or failed. *If the service provider is unable to respond synchronously and the client omits the responseUrl property, then the service provider should refuse to accept the deletion of assignment.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignmentDeletionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Assignment created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDeletionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/users/licenses": {
       "post": {
-        "tags": ["BOL 1"],
+        "tags": [ "BOL 1" ],
         "summary": "Get User Licenses",
         "description": "Used by the client to get which licenses/articles are assigned to a specific user.",
         "requestBody": {
@@ -287,7 +326,7 @@
     },
     "/v1/school-units/users/licenses": {
       "post": {
-        "tags": ["BOL 1"],
+        "tags": [ "BOL 1" ],
         "summary": "Get School Unit User Licenses",
         "description": "Used by the client to get which licenses/articles are assigned to which users for a specific school unit.",
         "requestBody": {
@@ -326,7 +365,7 @@
     },
     "/v1/school-units/licenses": {
       "post": {
-        "tags": ["BOL 1"],
+        "tags": [ "BOL 1" ],
         "summary": "Get School Unit Licenses",
         "description": "Used by the client to get license status per article for specific school units.",
         "requestBody": {
@@ -404,7 +443,7 @@
             "description": "Response url if asynchronous communication is supported by the service provider. URI according to RFC3986."
           },
           "buyer": {
-            "required": ["type"],
+            "required": [ "type" ],
             "type": "object",
             "nullable": false,
             "description": "An organization or a private person.",
@@ -443,7 +482,7 @@
                 "description": "Country code in ISO 3166 Alpha-2 code."
               },
               "reference": {
-                "required": ["firstName", "lastName", "email", "notify"],
+                "required": [ "firstName", "lastName", "email", "notify" ],
                 "type": "object",
                 "nullable": true,
                 "description": "Reference person.",
@@ -471,7 +510,7 @@
                 }
               },
               "school": {
-                "required": ["idSource", "id", "name"],
+                "required": [ "idSource", "id", "name" ],
                 "type": "object",
                 "nullable": true,
                 "description": "The school that receives the articles of the order.",
@@ -497,7 +536,7 @@
             "type": "array",
             "description": "Order lines, one for each article.",
             "items": {
-              "required": ["clientOrderLineId", "articleNumber", "quantity"],
+              "required": [ "clientOrderLineId", "articleNumber", "quantity" ],
               "type": "object",
               "nullable": false,
               "properties": {
@@ -734,7 +773,7 @@
         }
       },
       "AssignmentRequest": {
-        "required": ["clientId", "serviceProviderId", "school", "assignments"],
+        "required": [ "clientId", "serviceProviderId", "school", "assignments" ],
         "type": "object",
         "nullable": false,
         "description": "Request from client.",
@@ -755,7 +794,7 @@
             "description": "Response url if asynchronous communication is needed."
           },
           "school": {
-            "required": ["idSource", "id"],
+            "required": [ "idSource", "id" ],
             "type": "object",
             "nullable": false,
             "description": "The school where the users and the licenses to be assigned are located.",
@@ -810,7 +849,7 @@
                   "description": "The client's unique id for the order line with the license to be assigned."
                 },
                 "user": {
-                  "required": ["idSource", "id"],
+                  "required": [ "idSource", "id" ],
                   "type": "object",
                   "nullable": false,
                   "description": "The user to assign.",
@@ -829,7 +868,7 @@
                   "type": "array",
                   "description": "The groups through which a user was assigned the license. The assignment is individual, but the service provider may choose to use this information in its environment.",
                   "items": {
-                    "required": ["idSource", "id", "name"],
+                    "required": [ "idSource", "id", "name" ],
                     "type": "object",
                     "nullable": false,
                     "properties": {
@@ -884,7 +923,7 @@
         }
       },
       "AssignmentResponse": {
-        "required": ["clientId", "serviceProviderId", "assignments"],
+        "required": [ "clientId", "serviceProviderId", "assignments" ],
         "type": "object",
         "nullable": false,
         "description": "Response from service provider.",
@@ -903,7 +942,7 @@
             "type": "array",
             "description": "The assignment lines that have been processed.",
             "items": {
-              "required": ["clientAssignmentId", "articleUrl", "status"],
+              "required": [ "clientAssignmentId", "articleUrl", "status" ],
               "type": "object",
               "nullable": false,
               "properties": {
@@ -956,8 +995,187 @@
           ]
         }
       },
+      "AssignmentDeletionRequest": {
+        "required": [ "clientId", "serviceProviderId", "school", "assignments" ],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "responseUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response url if asynchronous communication is needed."
+          },
+          "school": {
+            "required": [ "idSource", "id" ],
+            "type": "object",
+            "nullable": false,
+            "description": "The school where the users and the licenses to be unassigned are located.",
+            "properties": {
+              "idSource": {
+                "$ref": "#/components/schemas/SchoolIdSourceEnum"
+              },
+              "id": {
+                "type": "string",
+                "nullable": false,
+                "description": "School id."
+              }
+            }
+          },
+          "assignments": {
+            "type": "array",
+            "description": "Assignments to be deleted",
+            "items": {
+              "required": [
+                "clientAssignmentId",
+                "articleNumber",
+                "clientOrderLineId",
+                "user"
+              ],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientAssignmentId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Unique assignment id within the request to map to the assignment in the response. Can be a running number 1, 2, 3 ..."
+                },
+                "articleNumber": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "Article number."
+                },
+                "licenseKey": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Entered if the service provider responded with license key(s) in /v1/orders/create, otherwise assignment can be handled with only article number."
+                },
+                "clientOrderLineId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The client's unique id for the order line with the license to be assigned."
+                },
+                "user": {
+                  "required": [ "idSource", "id" ],
+                  "type": "object",
+                  "nullable": false,
+                  "description": "The user to unassign.",
+                  "properties": {
+                    "idSource": {
+                      "$ref": "#/components/schemas/UserIdSourceEnum"
+                    },
+                    "id": {
+                      "type": "string",
+                      "nullable": false,
+                      "description": "User id."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "responseUrl": "https://client.se/api/bol/assignment",
+          "school": {
+            "idSource": "skolverket",
+            "id": "12345678"
+          },
+          "assignments": [
+            {
+              "clientAssignmentId": "1",
+              "articleNumber": "1234567890123",
+              "licenseKey": "",
+              "clientOrderLineId": "12345",
+              "user": {
+                "idSource": "client",
+                "id": "user123"
+              }
+            }
+          ]
+        }
+      },
+      "AssignmentDeletionResponse": {
+        "required": [ "clientId", "serviceProviderId", "assignments" ],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "assignments": {
+            "type": "array",
+            "description": "The assignment lines that have been processed.",
+            "items": {
+              "required": [ "clientAssignmentId", "status" ],
+              "type": "object",
+              "nullable": false,
+              "properties": {
+                "clientAssignmentId": {
+                  "type": "string",
+                  "nullable": false,
+                  "description": "The assignment id that corresponds to the one in the request."
+                },
+                "validFromDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "License valid from date.",
+                  "format": "date"
+                },
+                "validToDate": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "License valid to date.",
+                  "format": "date"
+                },
+                "status": {
+                  "$ref": "#/components/schemas/AssignmentStatusEnum"
+                },
+                "errorMessage": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "Error message if failed."
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "assignments": [
+            {
+              "clientAssignmentId": "1",
+              "validFromDate": "2022-08-01",
+              "validToDate": "2023-08-01",
+              "status": "unassigned",
+              "errorMessage": ""
+            }
+          ]
+        }
+      },
       "UserLicensesRequest": {
-        "required": ["clientId", "serviceProviderId", "user"],
+        "required": [ "clientId", "serviceProviderId", "user" ],
         "type": "object",
         "nullable": false,
         "description": "Request from client.",
@@ -973,7 +1191,7 @@
             "description": "Service Provider id, e.g. nok.se."
           },
           "user": {
-            "required": ["idSource", "id"],
+            "required": [ "idSource", "id" ],
             "type": "object",
             "nullable": false,
             "description": "The user for whom the licenses are being requested.",
@@ -999,7 +1217,7 @@
         }
       },
       "UserLicensesResponse": {
-        "required": ["clientId", "serviceProviderId", "schools"],
+        "required": [ "clientId", "serviceProviderId", "schools" ],
         "type": "object",
         "nullable": false,
         "description": "Response from service provider.",
@@ -1018,7 +1236,7 @@
             "type": "array",
             "description": "Schools to which the user belongs.",
             "items": {
-              "required": ["idSource", "id", "assignedLicenses"],
+              "required": [ "idSource", "id", "assignedLicenses" ],
               "type": "object",
               "nullable": false,
               "properties": {
@@ -1034,7 +1252,7 @@
                   "type": "array",
                   "description": "Articles that the user has at school. Returns only licenses ordered by the client.",
                   "items": {
-                    "required": ["articleNumber", "articleName", "articleUrl"],
+                    "required": [ "articleNumber", "articleName", "articleUrl" ],
                     "type": "object",
                     "nullable": false,
                     "properties": {
@@ -1105,7 +1323,7 @@
         }
       },
       "SchoolUnitUserLicensesRequest": {
-        "required": ["clientId", "serviceProviderId", "school"],
+        "required": [ "clientId", "serviceProviderId", "school" ],
         "type": "object",
         "nullable": false,
         "description": "Request from client.",
@@ -1121,7 +1339,7 @@
             "description": "Service Provider id, e.g. nok.se."
           },
           "school": {
-            "required": ["idSource", "id"],
+            "required": [ "idSource", "id" ],
             "type": "object",
             "nullable": false,
             "description": "The school for which the licenses are being requested.",
@@ -1146,7 +1364,7 @@
         }
       },
       "SchoolUnitUserLicensesResponse": {
-        "required": ["clientId", "serviceProviderId"],
+        "required": [ "clientId", "serviceProviderId" ],
         "type": "object",
         "nullable": false,
         "description": "Response from service provider.",
@@ -1165,7 +1383,7 @@
             "type": "array",
             "description": "Users and their assigned licenses.",
             "items": {
-              "required": ["idSource", "id"],
+              "required": [ "idSource", "id" ],
               "type": "object",
               "nullable": false,
               "properties": {
@@ -1348,7 +1566,7 @@
         }
       },
       "SchoolUnitLicensesRequest": {
-        "required": ["clientId", "serviceProviderId", "fromDate", "schools"],
+        "required": [ "clientId", "serviceProviderId", "fromDate", "schools" ],
         "type": "object",
         "nullable": false,
         "description": "Request from client.",
@@ -1379,7 +1597,7 @@
             "type": "array",
             "description": "Schools.",
             "items": {
-              "required": ["idSource", "id"],
+              "required": [ "idSource", "id" ],
               "type": "object",
               "nullable": false,
               "properties": {
@@ -1409,7 +1627,7 @@
         }
       },
       "SchoolUnitLicensesResponse": {
-        "required": ["clientId", "serviceProviderId", "schools"],
+        "required": [ "clientId", "serviceProviderId", "schools" ],
         "type": "object",
         "nullable": false,
         "description": "Response from service provider.",
@@ -1428,7 +1646,7 @@
             "type": "array",
             "description": "Schools.",
             "items": {
-              "required": ["idSource", "id"],
+              "required": [ "idSource", "id" ],
               "type": "object",
               "nullable": false,
               "properties": {
@@ -1966,17 +2184,17 @@
       "BuyerTypeEnum": {
         "type": "string",
         "description": "Type of buyer. Possible values:\n- `organization`: Buyer is an organization.\n- `private`: Private buyer.",
-        "enum": ["organization", "private"]
+        "enum": [ "organization", "private" ]
       },
       "SchoolIdSourceEnum": {
         "type": "string",
         "description": "The source system of the school id. Possible values:\n- `skolverket`: School unit code from Skolverket.\n- `client`: Id specified by the client.\n- `serviceProvider`: Id specified by the service provider.\n- `other`: Value agreed by the client and the service provider.",
-        "enum": ["skolverket", "client", "serviceProvider", "other"]
+        "enum": [ "skolverket", "client", "serviceProvider", "other" ]
       },
       "OrderLineStatusEnum": {
         "type": "string",
         "description": "Order line status. Possible values:\n- `beingProcessed`: The order is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `backordered`: Backordered, the service provider can send with an expected delivery date in deliveryDate. In the same way as in beingProcessed, the client expects to receive a call to responseUrl.\n- `delivered`: The order is delivered and the retailer can find the license keys that can be used for the assignment in licenseKeys.\n- `failed`: Failed, order has not gone through. The service provider can send more detailed information in the errorMessage.",
-        "enum": ["beingProcessed", "backordered", "delivered", "failed"]
+        "enum": [ "beingProcessed", "backordered", "delivered", "failed" ]
       },
       "UserIdSourceEnum": {
         "type": "string",
@@ -2009,7 +2227,7 @@
       "AssignmentStatusEnum": {
         "type": "string",
         "description": "Assignment status. Possible values:\n- `beingProcessed`: The assignment is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `assigned`: The assignment is complete and the license is ready to use.\n- `unassigned`: The unassignment request succeeded and the user no longer has the license.\n- `failed`: The assignment or unassignment has not gone through. The service provider can send more detailed information in the errorMessage.",
-        "enum": ["beingProcessed", "assigned", "unassigned", "failed"]
+        "enum": [ "beingProcessed", "assigned", "unassigned", "failed" ]
       },
       "ActivationLineStatusEnum": {
         "type": "string",
