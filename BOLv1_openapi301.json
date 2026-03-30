@@ -207,6 +207,45 @@
         }
       }
     },
+    "/v1/orders/move": {
+      "post": {
+        "tags": [ "BOL 1" ],
+        "summary": "Move Order",
+        "description": "Used by the client to move an order from one schoool to another at the service provider.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrderMoveRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Order created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderMoveResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/assignments/create": {
       "post": {
         "tags": ["BOL 1"],
@@ -770,6 +809,114 @@
               "errorMessage": ""
             }
           ]
+        }
+      },
+      "OrderMoveRequest": {
+        "required": [
+          "clientId",
+          "serviceProviderId",
+          "clientOrderNumber",
+          "school"
+        ],
+        "type": "object",
+        "nullable": false,
+        "description": "Request from client.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "clientOrderNumber": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client order number."
+          },
+          "responseUrl": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response url if asynchronous communication is supported by the service provider. URI according to RFC3986."
+          },
+          "school": {
+            "required": ["idSource", "id", "name"],
+            "type": "object",
+            "nullable": true,
+            "description": "The school to which the order is to be moved.",
+            "properties": {
+              "idSource": {
+                "$ref": "#/components/schemas/SchoolIdSourceEnum"
+              },
+              "id": {
+                "type": "string",
+                "nullable": false,
+                "description": "School id. The service provider must save this id on the data even if the data is mapped to another school at the service provider. The client must be able to query for data on this id."
+              },
+              "name": {
+                "type": "string",
+                "nullable": false,
+                "description": "School name."
+              }
+            }
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientOrderNumber": "C-1234",
+          "responseUrl": "https://client.se/api/bol/order",
+          "school": {
+            "idSource": "skolverket",
+            "id": "12345678",
+            "name": "Söderskolan"
+          }
+        }
+      },
+      "OrderMoveResponse": {
+        "required": [
+          "clientId",
+          "serviceProviderId",
+          "clientOrderNumber",
+          "status"
+        ],
+        "type": "object",
+        "nullable": false,
+        "description": "Response from service provider.",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client id, e.g. goteborgsregionen.se."
+          },
+          "serviceProviderId": {
+            "type": "string",
+            "nullable": false,
+            "description": "Service Provider id, e.g. nok.se."
+          },
+          "clientOrderNumber": {
+            "type": "string",
+            "nullable": false,
+            "description": "Client order number. Should be the same that was sent in the request."
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderMoveStatusEnum"
+          },
+          "errorMessage": {
+            "type": "string",
+            "nullable": true,
+            "description": "Detailed information as to why order move 'failed'"
+          }
+        },
+        "example": {
+          "clientId": "client.se",
+          "serviceProviderId": "serviceprovider.se",
+          "clientOrderNumber": "C-1234",
+          "status": "moved",
+          "errorMessage": ""
         }
       },
       "AssignmentRequest": {
@@ -2195,6 +2342,11 @@
         "type": "string",
         "description": "Order line status. Possible values:\n- `beingProcessed`: The order is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `backordered`: Backordered, the service provider can send with an expected delivery date in deliveryDate. In the same way as in beingProcessed, the client expects to receive a call to responseUrl.\n- `delivered`: The order is delivered and the retailer can find the license keys that can be used for the assignment in licenseKeys.\n- `failed`: Failed, order has not gone through. The service provider can send more detailed information in the errorMessage.",
         "enum": ["beingProcessed", "backordered", "delivered", "failed"]
+      },
+      "OrderMoveStatusEnum": {
+        "type": "string",
+        "description": "Order Move status. Possible values:\n- `beingProcessed`: The order move is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time.\n- `moved`: The order is moved.\n- `failed`: Failed, order move has not gone through. The service provider can send more detailed information in the errorMessage.",
+        "enum": ["beingProcessed", "moved", "failed"]
       },
       "UserIdSourceEnum": {
         "type": "string",

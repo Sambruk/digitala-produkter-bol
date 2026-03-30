@@ -71,6 +71,7 @@ An assignment can be made by the client who placed the order or by the service p
 | Endpoint | Method | Description | Mandatory |
 | :---- | :---- | :---- | :---: |
 | /v1/orders/create | POST | Used by the client to place an order at the service provider. | To order |
+| /v1/orders/move | POST | Used by the client to move an order from one school to another at the service provider. | No |
 | /v1/assignments/create | POST | Used by the client to do one or more assignments of a license to a user. A prerequisite is that the users have the same unique ID at the client as at the service provider. | To assign |
 | /v1/assignments/delete | POST | Used by the client to delete one or more assignments of a license to a user. A prerequisite is that the users have the same unique ID at the client as at the service provider. | No |
 | /v1/users/licenses | POST | Used by the client to get which licenses/articles are assigned to a specific user. A prerequisite is that the users have the same unique ID at the client as at the service provider. | No |
@@ -208,6 +209,19 @@ Used in:
 | backordered | Backordered, the service provider can send with an expected delivery date in deliveryDate. In the same way as in beingProcessed, the client expects to receive a call to responseUrl. Can be followed by delivered, failed |
 | delivered | The order is delivered and the retailer can find the license keys that can be used for the assignment in licenseKeys. |
 | failed | Failed, order has not gone through. The service provider can send more detailed information in the errorMessage. |
+
+### status
+
+Used in:
+
+* /v1/orders/move Response  
+* /v1/orders/move Response to an asynchronous response
+
+| Value | Description |
+| :---- | :---- |
+| beingProcessed | The order movement is handled by the service provider. If the service provider responds with this status, the client expects to receive another call to the responseUrl at a later time. Can be followed by moved, failed |
+| moved | The order is moved. |
+| failed | Failed, the order could not be moved. The service provider can send more detailed information in the errorMessage. |
 
 ### user.idSource
 
